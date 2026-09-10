@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מכניקה למכינה | פורטל פיזיקה</title>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="index.html" class="back-link">
+            <span style="font-size: 1.2rem; margin-left: 5px;">➔</span> חזרה לראשי
+        </a>
+        <h1>מכניקה למכינה</h1>
+    </nav>
+
+    <div class="layout-wrapper">
+        <aside class="sidebar">
+            <h2>פרקי הלימוד</h2>
+            <ul class="chapter-list">
+                <li><a href="#" class="chapter-link active" data-chapter="kinematics">קינמטיקה</a></li>
+                <li><a href="#" class="chapter-link" data-chapter="kinematics2d">קינמטיקה דו-מימדית</a></li>
+                <li><a href="#" class="chapter-link" data-chapter="newton">כוחות וחוקי ניוטון</a></li>
+                <li><a href="#" class="chapter-link" data-chapter="energy">עבודה ואנרגיה</a></li>
+                <li><a href="#" class="chapter-link" data-chapter="circular">תנועה מעגלית</a></li>
+                <li><a href="#" class="chapter-link" data-chapter="momentum">מתקף ותנע</a></li>
+                <li><a href="#" class="chapter-link" data-chapter="gravity">כבידה</a></li>
+                <li><a href="#" class="chapter-link" data-chapter="harmonic">תנועה הרמונית</a></li>
+            </ul>
+        </aside>
+
+        <main class="content-area">
+            <h2 id="current-chapter-title">טוען נתונים...</h2>
+            
+            <div class="tabs-container">
+                <div class="tabs-header">
+                    <button class="tab-btn active" data-tab="tab-summary">סיכום תיאוריה</button>
+                    <button class="tab-btn" data-tab="tab-presentations">מצגות</button>
+                    <button class="tab-btn" data-tab="tab-exercises">תרגילים שוטפים</button>
+                    <button class="tab-btn" data-tab="tab-exams">בגרות ומתכונת</button>
+                    <button class="tab-btn" data-tab="tab-videos">סרטונים וסימולציות</button>
+                </div>
+
+                <div class="tabs-body">
+                    <div id="tab-summary" class="tab-pane active">
+                        <div id="summary-content"></div>
+                    </div>
+                    
+                    <div id="tab-presentations" class="tab-pane">
+                        <div id="presentations-content"></div>
+                    </div>
+                    
+                    <div id="tab-exercises" class="tab-pane">
+                        <div id="exercises-content"></div>
+                    </div>
+                    
+                    <div id="tab-exams" class="tab-pane">
+                        <div id="exams-content"></div>
+                    </div>
+                    
+                    <div id="tab-videos" class="tab-pane">
+                        <div id="videos-content" class="video-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- טעינת הנתונים והלוגיקה בסוף הדף -->
+    <script src="data/content.js"></script>
+    <script src="assets/app.js"></script>
+</body>
+</html>
