@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chapterTitle = document.getElementById('current-chapter-title');
 
     // Default chapter loaded when page opens
-    let currentChapter = 'kinematics';
+    let currentChapter = document.querySelector('.chapter-link.active') ? document.querySelector('.chapter-link.active').dataset.chapter : 'kinematics';
 
     // Initialize content
     if(chapterLinks.length > 0) {
@@ -41,7 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to load and render data from content.js
     function loadChapter(chapterId) {
-        const data = mechanicsData[chapterId];
+        let dataObj = typeof mechanicsData !== 'undefined' ? mechanicsData : {};
+        if (document.title.includes('חשמל')) dataObj = typeof electricityData !== 'undefined' ? electricityData : {};
+        else if (document.title.includes('גלים')) dataObj = typeof wavesData !== 'undefined' ? wavesData : {};
+        else if (document.title.includes('אופטיקה')) dataObj = typeof opticsData !== 'undefined' ? opticsData : {};
+        
+        const data = dataObj[chapterId];
         if (!data) {
             console.error("No data found for chapter:", chapterId);
             return;
@@ -75,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         items.forEach(item => {
             const li = document.createElement('li');
-            li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a>`;
+            li.innerHTML = `<a href="${item.link}">${item.title}</a>`;
             ul.appendChild(li);
         });
         
@@ -95,10 +100,21 @@ document.addEventListener('DOMContentLoaded', () => {
         videos.forEach(vid => {
             const div = document.createElement('div');
             div.className = 'video-card';
+            
+            // Extract the src from the embed code
+            let srcMatch = vid.embed.match(/src="([^"]+)"/);
+            let srcUrl = srcMatch ? srcMatch[1] : '#';
+            
             div.innerHTML = `
-                <h3>${vid.title}</h3>
+                <div class="video-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px;">
+                    <h3 style="margin: 0;">${vid.title}</h3>
+                    <button class="fullscreen-btn" onclick="window.open('${srcUrl}', '_blank')" style="background: none; border: none; cursor: pointer; font-size: 1.5rem;" title="פתיחה בחלון חדש / YouTube (לפתרון חסימות במסך מלא)">⛶</button>
+                </div>
                 <div class="video-wrapper">
                     ${vid.embed}
+                </div>
+                <div class="video-caption" style="font-size: 0.8rem; color: #777; text-align: center; margin-top: 5px;">
+                    * אם הסרטון לא עובד או מופיע 'לא זמין', לחצו על כפתור ה-⛶ למעלה
                 </div>
             `;
             container.appendChild(div);
