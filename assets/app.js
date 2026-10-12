@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderList('presentations-content', data.presentations);
         renderList('exercises-content', data.exercises);
         renderList('exams-content', data.exams);
+        renderList('activities-content', data.activities);
 
         // Render Videos & Simulations
         renderVideos('videos-content', data.videos);
@@ -80,7 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         items.forEach(item => {
             const li = document.createElement('li');
-            li.innerHTML = `<a href="${item.link}">${item.title}</a>`;
+            // External links open in a new tab; placeholder "#" links stay in place
+            const target = item.link && item.link !== '#' ? ' target="_blank" rel="noopener"' : '';
+            li.innerHTML = `<a href="${item.link}"${target}>${item.title}</a>`;
+            if (item.note) li.innerHTML += `<div class="item-note" style="font-size: 0.85rem; color: #666; margin-top: 4px;">${item.note}</div>`;
             ul.appendChild(li);
         });
         

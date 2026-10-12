@@ -66,10 +66,36 @@ const mechanicsData = {
             { title: "תרגיל 2 - החוק השני וגלגלות", link: "#" }
         ],
         exams: [],
+        activities: [
+            { title: "משוך בחבל: חוקי ניוטון - דף למורה (מכון דוידסון, PDF)", link: "https://davidson.org.il/vod/wp-content/uploads/sites/2/2022/01/Masuch-bahaval_-huki-Newton_teacher_0-4.pdf", note: "שיעור אחד. צפייה בסרטון + עבודה עצמית בסימולציית PhET (משיכה בחבל) - החוק הראשון והשני. כולל תשובות." },
+            { title: "משוך בחבל: חוקי ניוטון - דף לתלמיד (מכון דוידסון, PDF)", link: "https://davidson.org.il/vod/wp-content/uploads/sites/2/2011/07/Masuch-bahaval_-huki-Newton_student-4.pdf", note: "גרסת התלמיד של הפעילות. מיועד במקור לחטיבת ביניים - טוב כפתיחה/חזרה." },
+            { title: "Physics Classroom: תרגול אינטראקטיבי - תרשימי גוף חופשי (אנגלית)", link: "https://www.physicsclassroom.com/Physics-Interactives/Newtons-Laws/Free-Body-Diagrams", note: "התלמיד בוחר את הכוחות הנכונים לכל מצב ומקבל משוב מיידי." },
+            { title: "Physics Classroom: סימולציה - החוק השני של ניוטון (אנגלית)", link: "https://www.physicsclassroom.com/Physics-Interactives/Newtons-Laws/Force", note: "משנים כוח, מסה וחיכוך ובודקים את התאוצה." },
+            { title: "Physics Classroom: כל האינטראקטיבים בנושא חוקי ניוטון (אנגלית)", link: "https://www.physicsclassroom.com/Physics-Interactives/Newtons-Laws" },
+            { title: "Physics Classroom: תרגול זיהוי כוחות (אנגלית)", link: "https://www.physicsclassroom.com/morehelp/recforce", note: "מצבים מוחשיים - התלמיד מזהה אילו כוחות פועלים על הגוף. הכנה טובה לתרשים כוחות." },
+            { title: "הדגמת כיתה: שליפת מפה מתחת לכלים (התמדה) - סרטון הדרכה", link: "https://www.youtube.com/watch?v=PcGIUZzWoVc", note: "גרסה פשוטה לכיתה: כרטיס מעל כוס ועליו מטבע - מעיפים את הכרטיס והמטבע נופל לכוס." },
+            { title: "הדגמת כיתה: טיל בלון על חוט (פעולה ותגובה) - סרטון הדרכה", link: "https://www.youtube.com/watch?v=iV3NXFkdUyw", note: "צריך: בלון, קש, חוט ונייר דבק." }
+        ],
         videos: [
+            { title: "שלושת חוקי התנועה של ניוטון (מכון דוידסון)", embed: '<iframe src="https://www.youtube.com/embed/zCNSO002jfI" frameborder="0" allowfullscreen></iframe>' },
+            { title: "הכוחות הבסיסיים: כובד, נורמל ומתיחות (מבוא לפיזיקה, בר-אילן)", embed: '<iframe src="https://www.youtube.com/embed/LzHgQTUegQI" frameborder="0" allowfullscreen></iframe>' },
+            { title: "כוח ושקול כוחות (מבוא לפיזיקה, בר-אילן)", embed: '<iframe src="https://www.youtube.com/embed/CBPr-_Xizng" frameborder="0" allowfullscreen></iframe>' },
+            { title: "כוח החיכוך (מבוא לפיזיקה, בר-אילן)", embed: '<iframe src="https://www.youtube.com/embed/ST-AZ2qD24s" frameborder="0" allowfullscreen></iframe>' },
+            { title: "עריכת תרשים כוחות (אריאל ליבזון)", embed: '<iframe src="https://www.youtube.com/embed/FLBD9DuOkAM" frameborder="0" allowfullscreen></iframe>' },
+            { title: "הדגמה: חוק ההתמדה - שליפת מפה מתחת לכלים", embed: '<iframe src="https://www.youtube.com/embed/PcGIUZzWoVc" frameborder="0" allowfullscreen></iframe>' },
             { title: "הדגמה: חוק שלישי של ניוטון בחלל (נאס\"א)", embed: '<iframe src="https://www.youtube.com/embed/ZkVU-bj9bDk" frameborder="0" allowfullscreen></iframe>' },
-            { title: "הדגמה: פיזיקה זה כיף!", embed: '<iframe src="https://www.youtube.com/embed/MkKEwrshYWs" frameborder="0" allowfullscreen></iframe>' },
-            { title: "סימולציה PhET: כוחות ותנועה", embed: '<iframe src="https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' }
+            { title: "הדגמה: החוק השלישי - הדגמות של נאס\"א (STEMonstrations)", embed: '<iframe src="https://www.youtube.com/embed/dCF--YOjiOw" frameborder="0" allowfullscreen></iframe>' },
+            { title: "מהו כוח? (Veritasium, אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/GmlMV7bA0TM" frameborder="0" allowfullscreen></iframe>' },
+            { title: "החוק השלישי - הסרט הטוב ביותר (Veritasium, אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/8bTdMmNZm2M" frameborder="0" allowfullscreen></iframe>' },
+            { title: "שלושת חוקי ניוטון עם אופניים (TED-Ed, אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/JGO_zDWmkvk" frameborder="0" allowfullscreen></iframe>' },
+            { title: "האם שוקלים פחות במעלית? (TED-Ed, אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/2k-2IlJcaHg" frameborder="0" allowfullscreen></iframe>' },
+            { title: "חוקי ניוטון (Crash Course Physics #5, אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/kKKM8Y-u7ds" frameborder="0" allowfullscreen></iframe>' },
+            { title: "הרצאה מלאה: חוקי ניוטון (וולטר לוין, MIT 8.01 הרצאה 6)", embed: '<iframe src="https://www.youtube.com/embed/oduZsA0Tk58" frameborder="0" allowfullscreen></iframe>' },
+            { title: "סימולציה PhET: כוחות ותנועה", embed: '<iframe src="https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+            { title: "סימולציה PhET: חיכוך", embed: '<iframe src="https://phet.colorado.edu/sims/html/friction/latest/friction_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+            { title: "סימולציה PhET: כוחות במימד אחד (כולל תרשים גוף חופשי)", embed: '<iframe src="https://phet.colorado.edu/sims/cheerpj/forces-1d/latest/forces-1d.html?simulation=forces-1d&locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+            { title: "סימולציה: ניסוי החוק השני - עגלה על מסילה (Walter Fendt)", embed: '<iframe src="https://www.walter-fendt.de/html5/phen/newtonlaw2_en.htm" width="800" height="600" allowfullscreen></iframe>' },
+            { title: "סימולציה PhET: מישור משופע - כוחות ותנועה", embed: '<iframe src="https://phet.colorado.edu/sims/cheerpj/motion-series/latest/motion-series.html?simulation=ramp-forces-and-motion&locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' }
         ]
     },
     "energy": {
@@ -128,7 +154,8 @@ const electricityData = {
             { title: "שדה חשמלי מומחש באמצעות גבישים", embed: '<iframe src="https://www.youtube.com/embed/63FnT0W-Hxc" frameborder="0" allowfullscreen></iframe>' },
             { title: "הדגמה: משיכה ודחייה אלקטרוסטטית", embed: '<iframe src="https://www.youtube.com/embed/ceUApJ_LUzU" frameborder="0" allowfullscreen></iframe>' },
             { title: "הדגמה: מחולל ואן דר גראף (חשמל סטטי)", embed: '<iframe src="https://www.youtube.com/embed/Ii1UifBoTb0" frameborder="0" allowfullscreen></iframe>' },
-            { title: "9 טריקים מדעיים לחשמל סטטי", embed: '<iframe src="https://www.youtube.com/embed/ViZNgU-Yt-Y" frameborder="0" allowfullscreen></iframe>' }
+            { title: "9 טריקים מדעיים לחשמל סטטי", embed: '<iframe src="https://www.youtube.com/embed/ViZNgU-Yt-Y" frameborder="0" allowfullscreen></iframe>' },
+            { title: "לראות פיזיקה - מנועים אלקטרוסטטיים", embed: '<iframe src="https://www.youtube.com/embed/ng7YMF-NNZs" frameborder="0" allowfullscreen></iframe>' }
         ]
     },
     "circuits": {
