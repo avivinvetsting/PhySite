@@ -77,7 +77,7 @@ const mechanicsData = {
             { title: "הדגמת כיתה: טיל בלון על חוט (פעולה ותגובה) - סרטון הדרכה", link: "https://www.youtube.com/watch?v=iV3NXFkdUyw", note: "צריך: בלון, קש, חוט ונייר דבק." }
         ],
         videos: [
-            { title: "סימולציה: מכונת אטווד - שני גופים, חוט וגלגלת (מעבדה מקומית)", embed: '<iframe src="Atwood/atwood-lab.html" width="800" height="600" allowfullscreen></iframe>' },
+            { title: "סימולציה: מכונת אטווד - שני גופים, חוט וגלגלת (מעבדה מקומית)", embed: '<iframe src="Atwood/atwood-lab.html?v=2" width="800" height="600" allowfullscreen></iframe>' },
             { title: "שלושת חוקי התנועה של ניוטון (מכון דוידסון)", embed: '<iframe src="https://www.youtube.com/embed/zCNSO002jfI" frameborder="0" allowfullscreen></iframe>' },
             { title: "הכוחות הבסיסיים: כובד, נורמל ומתיחות (מבוא לפיזיקה, בר-אילן)", embed: '<iframe src="https://www.youtube.com/embed/LzHgQTUegQI" frameborder="0" allowfullscreen></iframe>' },
             { title: "כוח ושקול כוחות (מבוא לפיזיקה, בר-אילן)", embed: '<iframe src="https://www.youtube.com/embed/CBPr-_Xizng" frameborder="0" allowfullscreen></iframe>' },
