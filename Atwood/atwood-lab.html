@@ -131,6 +131,41 @@ body.graphs-open{overflow:hidden}
 .graphs-section.expanded{position:fixed;inset:0;z-index:50;margin:0;padding:16px 24px;border:0;background:var(--paper);display:flex;flex-direction:column}
 .graphs-section.expanded .graph-canvas-container{flex:1;min-height:0;height:auto}
 
+/* Predict-before-you-run panel. */
+.predict-panel{background:var(--surface);border:1px solid var(--line);border-bottom:0;padding:10px 14px;font-size:13px}
+.predict-panel[hidden]{display:none}
+.predict-intro{margin:0 0 8px}
+.predict-fields{display:flex;flex-wrap:wrap;gap:8px 20px}
+.predict-fields label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.predict-result{margin:10px 0 0;padding:8px 10px;background:#e5ebdf;border-right:3px solid var(--green);font-size:13px}
+.predict-result[hidden]{display:none}
+
+/* Embedded in the site's iframe (800×600): no title block, one compact experiment row, graph on the "height" tab. */
+body.embed .app-header,body.embed footer,body.embed .section-heading,body.embed .learning-note,body.embed .direction-note{display:none}
+body.embed main{padding:8px 10px 0}
+body.embed .presets-bar{flex-wrap:nowrap;overflow-x:auto;gap:5px;margin-bottom:8px;padding-bottom:2px}
+body.embed .presets-label{display:none}
+body.embed .preset-btn{font-size:12px;padding:4px 9px;min-height:30px;white-space:nowrap;flex:0 0 auto}
+body.embed .sim-toolbar{padding:6px 8px;gap:6px}
+body.embed .action-buttons{flex-wrap:wrap}
+body.embed .action-buttons button{padding:5px 9px;min-height:32px;font-size:12px}
+body.embed .replay-bar{padding:4px 10px}
+body.embed .replay-bar button{min-height:26px}
+body.embed .status-badge{padding:6px 10px;font-size:12px}
+body.embed .graph-subbar{margin:4px 0 6px}
+body.embed .graph-subbar .hint{font-size:11px}
+body.embed .graph-tabs button,body.embed .graph-actions button{padding:4px 8px;min-height:30px;font-size:12px}
+body.embed .measurement-table,body.embed .measurements-section{margin-top:8px}
+@media(min-width:761px){
+ body.embed .workspace{gap:12px}
+ body.embed .sim-toolbar{grid-template-columns:1fr auto auto}
+ body.embed .speed-control{grid-column:2;grid-row:1}
+ body.embed .time-readout{grid-column:3}
+ body.embed .canvas-container{height:clamp(240px,calc(100dvh - 230px),520px)}
+ body.embed .graph-canvas-container{height:clamp(240px,calc(100dvh - 175px),520px)}
+}
+
+
 </style></head>
 <body>
 <header class="app-header">
@@ -153,9 +188,13 @@ body.graphs-open{overflow:hidden}
 <section class="experiment" aria-label="הדמיה ונתונים">
 <div class="section-heading"><h2 id="experimentTitle">אטווד קלאסי</h2><span class="eyebrow">02 / צופים</span></div>
 <div class="sim-toolbar">
-<div class="action-buttons"><button id="btnPlayPause" class="btn-primary">▶ הפעל</button><button id="btnStep">צעד 0.05 s</button><button id="btnReset">איפוס</button></div>
+<div class="action-buttons"><button id="btnPlayPause" class="btn-primary">▶ הפעל</button><button id="btnStep">צעד 0.05 s</button><button id="btnReset">איפוס</button><button id="btnPredict" aria-expanded="false" aria-controls="predictPanel">נבא לפני שמריצים</button></div>
 <label class="speed-control" for="speedSelect">קצב <select id="speedSelect"><option value="1">זמן אמת</option><option value="0.5">×0.5</option><option value="0.2">×0.2</option></select></label>
 <div class="time-readout"><span>זמן</span><bdi id="valTime">0.00 s</bdi></div></div>
+<div id="predictPanel" class="predict-panel" hidden><p class="predict-intro">לפני ההפעלה: מה תהיה התאוצה ההתחלתית של גוף 1? (חיובי = מעלה)</p>
+<div class="predict-fields"><label>a₁ צפויה <span class="control-input-wrap"><input id="predictA" type="number" step="any" aria-label="תאוצה צפויה של גוף 1"><span>m/s²</span></span></label>
+<label>T צפויה (לא חובה) <span class="control-input-wrap"><input id="predictT" type="number" step="any" min="0" aria-label="מתיחות צפויה"><span>N</span></span></label></div>
+<p id="predictResult" class="predict-result" role="status" hidden></p></div>
 <div class="canvas-container"><canvas id="simCanvas" role="img" aria-label="מכונת אטווד: גוף 1 משמאל, גוף 2 מימין, חוט וגלגלת. גובה נמדד מתחתית הגוף עד הקרקע."></canvas>
 <span class="direction-note">↑ הכיוון החיובי</span></div>
 <div class="replay-bar"><label for="replaySlider">צפייה חוזרת</label><input id="replaySlider" type="range" min="0" max="0" step="any" value="0" disabled aria-describedby="replayHint">
@@ -166,7 +205,7 @@ body.graphs-open{overflow:hidden}
 <section class="graphs-section" aria-label="גרפים של הניסוי">
 <div class="section-heading"><h2>התנועה לאורך הזמן</h2><span class="eyebrow">03 / משווים</span></div>
 <div class="graphs-header"><div class="graph-tabs" role="group" aria-label="סוג הגרף">
-<button id="tabAll" class="tab-btn active" aria-pressed="true">כל הגרפים</button><button id="tabPos" class="tab-btn" aria-pressed="false">גובה</button><button id="tabVel" class="tab-btn" aria-pressed="false">מהירות</button><button id="tabForce" class="tab-btn" aria-pressed="false">כוחות</button></div>
+<button id="tabAll" class="tab-btn active" aria-pressed="true">כל הגרפים</button><button id="tabPos" class="tab-btn" aria-pressed="false">גובה</button><button id="tabVel" class="tab-btn" aria-pressed="false">מהירות</button><button id="tabAcc" class="tab-btn" aria-pressed="false">תאוצה</button><button id="tabForce" class="tab-btn" aria-pressed="false">כוחות</button></div>
 <div class="graph-actions"><button id="btnExpand" aria-pressed="false" title="הגדלת הגרפים לכל החלון · רווח — הפעל/השהה · Esc — סגירה">⛶ הגדלה</button><button id="btnExportCSV">ייצוא CSV ↓</button></div></div>
 <div class="graph-subbar"><p class="hint" id="graphPlanNote">ציר הזמן נקבע מראש לפי תנאי הניסוי ונשאר קבוע.</p>
 <div id="forceToggles" class="series-toggles" role="group" aria-label="כוחות שמוצגים בגרף"><span>כוחות:</span><button class="series-btn" data-series="T" aria-pressed="true"><i style="--c:#397668"></i>T</button><button class="series-btn" data-series="N1" aria-pressed="true"><i style="--c:#75602e"></i>N₁</button><button class="series-btn" data-series="N2" aria-pressed="true"><i style="--c:#a05276"></i>N₂</button></div></div>
@@ -353,7 +392,7 @@ body.graphs-open{overflow:hidden}
   const unending=moving&&(probe.g===0||probe.m1===probe.m2);
   const horizon=unending?Math.max(10,2*probe.ropeSum/Math.max(Math.abs(probe.initV1),.1)):
    Math.max(120,4*(Math.abs(probe.initV1)/Math.max(probe.g,.001)+Math.sqrt(2*probe.ropeSum/Math.max(probe.g,.001))));
-  const dt=horizon/6000,keys=['y1','y2','v1','v2','T','N1','N2'];
+  const dt=horizon/6000,keys=['y1','y2','v1','v2','a1','a2','T','N1','N2'];
   const bounds=Object.fromEntries(keys.map(k=>[k,{min:0,max:0}]));
   let maxHeight=Math.max(probe.y1,probe.y2),settled=!moving;
   function capture(s){
@@ -376,15 +415,16 @@ body.graphs-open{overflow:hidden}
   const duration=settled?Math.max(2,Math.ceil((probe.time+.4)*2)/2):Math.ceil(horizon);
   const pulleyHeight=Math.max(8,Math.ceil(maxHeight*1.25+2.5));
   const stringLength=2*pulleyHeight-probe.ropeSum;
+  const signed=ids=>/^[va]/.test(ids[0]);
   const range=ids=>{
    let min=Math.min(...ids.map(k=>bounds[k].min)),max=Math.max(...ids.map(k=>bounds[k].max));
-   if(max-min<1e-9){max=Math.max(1,max);if(ids[0][0]==='v')min=-1;}
+   if(max-min<1e-9){max=Math.max(1,max);if(signed(ids))min=-1;}
    const span=Math.max(max-min,1);
-   return {min:ids[0][0]==='v'?min-span*.08:0,max:max+span*.08};
+   return {min:signed(ids)?min-span*.08:0,max:max+span*.08};
   };
   return {duration,pulleyHeight,stringLength,maxHeight,settled,
    reason:settled?'settled':unending?'unending':'observation',
-   ranges:{pos:range(['y1','y2']),vel:range(['v1','v2']),force:range(['T','N1','N2'])}};
+   ranges:{pos:range(['y1','y2']),vel:range(['v1','v2']),acc:range(['a1','a2']),force:range(['T','N1','N2'])}};
  }
  return{planExperiment};
 });
@@ -476,11 +516,11 @@ function niceStep(span,count){const raw=span/count,p=10**Math.floor(Math.log10(r
 function niceAxis(min,max,count=4){if(!(max>min))max=min+1;const step=niceStep(max-min,count);return {min:Math.floor(min/step+1e-9)*step,max:Math.ceil(max/step-1e-9)*step,step};}
 function formatTick(v,step){let d=0;while(d<4&&Math.abs(Math.round(step*10**d)-step*10**d)>1e-6)d++;return String(Number(v.toFixed(d)));}
 class AtwoodCharts{
- constructor(canvas,o={}){this.canvas=canvas;this.ctx=canvas.getContext('2d');this.dataPoints=[];this.activeTab='all';this.theme=o.theme||'light';this.timeDomain={min:0,max:5};this.ranges=null;this.cursorIndex=null;this.hiddenSeries=new Set();this.resize();}
+ constructor(canvas,o={}){this.canvas=canvas;this.ctx=canvas.getContext('2d');this.dataPoints=[];this.columns=null;this.activeTab='all';this.theme=o.theme||'light';this.timeDomain={min:0,max:5};this.ranges=null;this.cursorIndex=null;this.hiddenSeries=new Set();this.resize();}
  setTheme(t){this.theme=t;this.draw();}
  resize(){const r=this.canvas.getBoundingClientRect(),d=typeof window==='undefined'?1:window.devicePixelRatio||1;this.width=r.width||600;this.height=r.height||510;this.canvas.width=this.width*d;this.canvas.height=this.height*d;this.ctx.setTransform(d,0,0,d,0,0);}
  setPlan(plan){this.timeDomain={min:0,max:plan.duration};this.ranges=plan.ranges;}
- reset(){this.dataPoints=[];this.cursorIndex=null;this.draw();}
+ reset(){this.dataPoints=[];this.columns=null;this.cursorIndex=null;this.draw();}
  record(time,s){this.dataPoints.push({t:time,y1:s.y1,y2:s.y2,v1:s.v1,v2:s.v2,a1:s.a1??0,a2:s.a2??0,T:s.T,N1:s.N1,N2:s.N2??0,isSlack:s.isSlack,angle:s.pulleyAngle,stateType:s.stateType,state:s.stateDescription});}
  /* Replay: index of a recorded sample to highlight, or null to follow the latest sample. */
  setCursor(index){this.cursorIndex=index;}
@@ -491,6 +531,31 @@ class AtwoodCharts{
    const d=this.dataPoints;if(!d.length)return null;
    let lo=0,hi=d.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(d[mid].t<t)lo=mid+1;else hi=mid;}
    return lo>0&&Math.abs(d[lo-1].t-t)<=Math.abs(d[lo].t-t)?lo-1:lo;
+ }
+ /* Plain number arrays per series (scanning these is several times faster than reading the sample objects). */
+ seriesColumns(){
+   const d=this.dataPoints,keys=['t','y1','y2','v1','v2','a1','a2','T','N1','N2'];
+   if(!this.columns||this.columns.t.length>d.length)this.columns=Object.fromEntries(keys.map(k=>[k,[]]));
+   const c=this.columns;for(let i=c.t.length;i<d.length;i++)for(const k of keys)c[k].push(d[i][k]);
+   return c;
+ }
+ /* Indices worth drawing for one series. Up to ~2 samples per pixel column are drawn as-is; denser data keeps only the
+    first, minimum, maximum and last sample of each column, so spikes and jumps survive. CSV export is unaffected. */
+ visibleIndices(key,minT,maxT,pw){
+   const c=this.seriesColumns(),times=c.t,vals=c[key],n=times.length,out=[],cols=Math.max(1,Math.floor(pw));
+   if(n<=cols*2){for(let i=0;i<n;i++)out.push(i);return out;}
+   const lower=t=>{let lo=0,hi=n;while(lo<hi){const m=(lo+hi)>>1;if(times[m]<t)lo=m+1;else hi=m;}return lo;};
+   let start=0;
+   for(let c=0;c<cols&&start<n;c++){
+     const end=c===cols-1?n:lower(minT+(c+1)*(maxT-minT)/cols);
+     if(end<=start)continue;
+     let lo=start,hi=start,vlo=vals[start],vhi=vlo;
+     for(let i=start+1;i<end;i++){const v=vals[i];if(v<vlo){vlo=v;lo=i;}else if(v>vhi){vhi=v;hi=i;}}
+     const last=end-1,idx=[start,lo,hi,last].sort((a,b)=>a-b);
+     for(let k=0;k<4;k++)if(k===0||idx[k]!==idx[k-1])out.push(idx[k]);
+     start=end;
+   }
+   return out;
  }
  setActiveTab(tab){this.activeTab=tab;this.draw();}
  exportCSV(){
@@ -505,26 +570,29 @@ class AtwoodCharts{
    const defs={
      pos:{title:'גובה [m]',series:[['y1','גוף 1','#286354'],['y2','גוף 2','#ae543b']]},
      vel:{title:'מהירות [m/s]',series:[['v1','גוף 1','#286354'],['v2','גוף 2','#ae543b']]},
+     acc:{title:'תאוצה [m/s²]',series:[['a1','גוף 1','#286354'],['a2','גוף 2','#ae543b']]},
      force:{title:'כוחות [N]',series:[['T','T','#397668'],['N1','N₁','#75602e'],['N2','N₂','#a05276']]}
    };
-   const plots=this.activeTab==='all'?['pos','vel','force']:[this.activeTab],slot=h/plots.length;
+   const plots=this.activeTab==='all'?['pos','vel','acc','force']:[this.activeTab];
+   // Four plots form a 2×2 grid on wide canvases; on narrow ones (phones) they stack.
+   const cols=plots.length===4&&w>=480?2:1,slot=h/Math.ceil(plots.length/cols),slotW=w/cols;
    const minT=this.timeDomain.min,maxT=this.timeDomain.max;
    const data=this.dataPoints,cursor=data[this.cursorIndex??data.length-1];
    plots.forEach((key,index)=>{
-     const cfg=defs[key],top=index*slot;
-     this.text(cfg.title,w-18,top+19,'#293e37','right',13);
-     let lx=18;
+     const cfg=defs[key],top=Math.floor(index/cols)*slot,ox=(index%cols)*slotW;
+     this.text(cfg.title,ox+slotW-18,top+19,'#293e37','right',13);
+     let lx=ox+18;
      cfg.series.forEach(([k,label,color],i)=>{
        const shown=!this.hiddenSeries.has(k),tint=shown?color:'#c9c6b8';
        this.line(lx,top+19,lx+13,top+19,tint,2);
        this.text(label,lx+18,top+19,tint,'left',12);lx+=key==='force'?57:78;
      });
-     const x=52,y=top+42,pw=w-76,ph=slot-75;
+     const x=ox+52,y=top+42,pw=slotW-76,ph=slot-75;
      let minY=0,maxY=1;
-     if(this.ranges){minY=this.ranges[key].min;maxY=this.ranges[key].max;}
+     if(this.ranges&&this.ranges[key]){minY=this.ranges[key].min;maxY=this.ranges[key].max;}
      else{
        for(const p of data)for(const s of cfg.series){minY=Math.min(minY,p[s[0]]);maxY=Math.max(maxY,p[s[0]]);}
-       const span=Math.max(maxY-minY,1);if(key==='vel')minY-=span*.08;maxY+=span*.08;
+       const span=Math.max(maxY-minY,1);if(key==='vel'||key==='acc')minY-=span*.08;maxY+=span*.08;
      }
      const axis=niceAxis(minY,maxY,4);minY=axis.min;maxY=axis.max;
      const sx=t=>x+(t-minT)/(maxT-minT)*pw,sy=v=>y+ph-(v-minY)/(maxY-minY)*ph;
@@ -541,7 +609,7 @@ class AtwoodCharts{
      cfg.series.forEach(([key,label,color],i)=>{
        if(this.hiddenSeries.has(key))return;
        c.strokeStyle=color;c.lineWidth=2;c.setLineDash(i===1?[5,3]:i===2?[2,3]:[]);
-       c.beginPath();data.forEach((p,j)=>{if(j)c.lineTo(sx(p.t),sy(p[key]));else c.moveTo(sx(p.t),sy(p[key]));});c.stroke();
+       c.beginPath();this.visibleIndices(key,minT,maxT,pw).forEach((j,n)=>{const p=data[j];if(n)c.lineTo(sx(p.t),sy(p[key]));else c.moveTo(sx(p.t),sy(p[key]));});c.stroke();
        if(data.length){c.beginPath();c.arc(sx(cursor.t),sy(cursor[key]),3.5,0,Math.PI*2);c.fillStyle=color;c.fill();}
      });
      c.restore();c.setLineDash([]);
@@ -555,6 +623,9 @@ return{AtwoodCharts,niceAxis,niceStep};
 </script><script>
 document.addEventListener('DOMContentLoaded',()=>{
  const $=id=>document.getElementById(id);
+ /* Embedded in the site's 800×600 iframe (or ?embed=1): compact header and presets, height graph by default. */
+ const embedded=window.self!==window.top||/[?&]embed=1(&|$)/.test(location.search);
+ if(embedded)document.body.classList.add('embed');
  const sim=new AtwoodPhysics.AtwoodSimulation(),renderer=new AtwoodRenderer.AtwoodRenderer($('simCanvas'),sim),charts=new AtwoodCharts.AtwoodCharts($('graphCanvas'));
  const presets={
   classic:{m1:3,m2:1,initY1:3,initV1:0,g:10},
@@ -566,7 +637,8 @@ document.addEventListener('DOMContentLoaded',()=>{
  };
  const fields=[['M1','m1'],['M2','m2'],['G','g'],['Y1','initY1'],['V1','initV1']];
  let running=false,speed=1,last=null,accumulator=0,selected='classic',experimentPlan;
- let runDuration=5,viewIndex=null;
+ let runDuration=5,viewIndex=null,prediction=null;
+ const MAX_WALL_SECONDS=30; // longer experiments are sped up automatically so none needs more than ~30 s of real time
  const buttons=[...document.querySelectorAll('.preset-btn')];
  function notice(t){$('configNotice').textContent=t;$('configNotice').hidden=!t;}
  function play(value){
@@ -610,8 +682,32 @@ document.addEventListener('DOMContentLoaded',()=>{
   slider.max=String(points[points.length-1].t);slider.disabled=running||points.length<2;
   if(!replaying)slider.value=slider.max;
   $('btnLive').hidden=!replaying;$('replayHint').hidden=replaying;
+  showPrediction();
   renderer.draw(s);charts.setCursor(viewIndex);charts.draw();
  }
+ // Predict-before-you-run: nothing is stored; the guess is compared with the initial values once the run is paused or finished.
+ const num=id=>{const t=$(id).value.trim();return t===''?NaN:Number(t);};
+ function readPrediction(){const a=num('predictA'),T=num('predictT');return Number.isFinite(a)?{a,T:Number.isFinite(T)?T:null}:null;}
+ function predictionReport(p){
+  const first=charts.dataPoints[0],close=(guess,real)=>Math.abs(guess-real)<=Math.max(.15,.05*Math.abs(real));
+  const f=x=>x.toFixed(2).replace('-','−'),lines=['ניבוי a₁ = '+f(p.a)+' m/s² · מחושב: '+f(first.a1)+' m/s²'];
+  if(close(p.a,first.a1))lines.push('קרוב מאוד — הניבוי מתאים.');
+  else if(p.a*first.a1<0)lines.push('הכיוון הפוך. הכיוון החיובי הוא מעלה; גוף 1 מאיץ כלפי מטה כשהוא הכבד יותר (m₁ > m₂).');
+  else lines.push('הכיוון נכון אך הגודל שונה. בחוט מתוח '+(first.isSlack?'':'(a₁ = (m₂ − m₁)g / (m₁ + m₂)) ')+'הכוח השקול הוא הפרש המשקלים, והוא מאיץ את שתי המסות יחד.');
+  if(p.T!==null)lines.push('ניבוי T = '+f(p.T)+' N · מחושב: '+f(first.T)+' N'+(close(p.T,first.T)?' — קרוב מאוד.':'.'));
+  return lines.join(' ');
+ }
+ function showPrediction(){
+  const result=$('predictResult');prediction=readPrediction();
+  const ready=prediction&&!$('predictPanel').hidden&&sim.time>0&&!running&&viewIndex===null;
+  result.hidden=!ready;if(ready){const t=predictionReport(prediction);if(result.textContent!==t)result.textContent=t;}
+ }
+ function clearPrediction(){$('predictA').value='';$('predictT').value='';$('predictResult').hidden=true;}
+ $('btnPredict').addEventListener('click',()=>{
+  const open=$('predictPanel').hidden;$('predictPanel').hidden=!open;$('btnPredict').setAttribute('aria-expanded',String(open));
+  $('btnPredict').setAttribute('aria-pressed',String(open));showPrediction();
+ });
+ for(const id of ['predictA','predictT'])$(id).addEventListener('input',showPrediction);
  function record(s=sim){charts.record(s.time,s);}
  sim.onEvent=record;
  function reset(){
@@ -619,11 +715,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   const parameters={m1:sim.m1,m2:sim.m2,g:sim.g,initY1:sim.initY1,initV1:sim.initV1};
   experimentPlan=AtwoodPlanning.planExperiment(parameters);runDuration=experimentPlan.duration;
   sim.setParameters({...parameters,pulleyHeight:experimentPlan.pulleyHeight,stringLength:experimentPlan.stringLength});
+  $('inputY1').max=$('sliderY1').max=sim.ropeSum;
   sim.reset();charts.setPlan(experimentPlan);charts.reset();record();sync();
   renderer.resize();
   const timeLabel=document.createElement('bdi');timeLabel.dir='ltr';timeLabel.textContent='0–'+runDuration+' s';
   $('graphPlanNote').replaceChildren('ציר זמן קבוע: ',timeLabel,' · '+(experimentPlan.settled?'כולל את כל מהלך הניסוי.':'חלון מדידה לתנועה מתמשכת.'));
-  $('apparatusNote').textContent='הגלגלת בגובה '+sim.pulleyHeight+' m, עם מרווח מעל שיא הגובה הצפוי. סכום הגבהים בחוט מתוח: 6 m. אורך הקטעים האנכיים: '+sim.stringLength+' m.';
+  $('apparatusNote').textContent='הגלגלת בגובה '+sim.pulleyHeight+' m, עם מרווח מעל שיא הגובה הצפוי. סכום הגבהים בחוט מתוח: '+sim.ropeSum+' m. אורך הקטעים האנכיים: '+sim.stringLength+' m.';
   update();
  }
  function markPreset(id){
@@ -638,17 +735,17 @@ document.addEventListener('DOMContentLoaded',()=>{
    config[key]=Math.min(Number(el.max),Math.max(Number(el.min),n));
    if(config[key]!==n)message='הערך הותאם לטווח המותר שמופיע בשדה.';
   }
-  if((config.initY1===0&&config.initV1<0)||(config.initY1===6&&config.initV1>0)){
+  if((config.initY1===0&&config.initV1<0)||(config.initY1===sim.ropeSum&&config.initV1>0)){
    config.initV1=0;message='גוף שעל הקרקע אינו יכול לקבל מהירות לתוך הקרקע. המהירות ההתחלתית הוגדרה לאפס.';
   }
-  play(false);sim.setParameters(config);if(custom)markPreset(null);reset();notice(message);
+  play(false);sim.setParameters(config);if(custom)markPreset(null);clearPrediction();reset();notice(message);
  }
  for(const [id]of fields){
   $('slider'+id).addEventListener('input',()=>{$('input'+id).value=$('slider'+id).value;apply();});
   $('input'+id).addEventListener('change',()=>apply());
  }
  for(const b of buttons)b.addEventListener('click',()=>{
-  sim.setParameters(presets[b.dataset.preset]);markPreset(b.dataset.preset);notice('');reset();
+  sim.setParameters(presets[b.dataset.preset]);markPreset(b.dataset.preset);notice('');clearPrediction();reset();
  });
  $('btnPlayPause').addEventListener('click',()=>play(!running));
  $('btnReset').addEventListener('click',()=>{notice('');reset();});
@@ -662,17 +759,17 @@ document.addEventListener('DOMContentLoaded',()=>{
  });
  $('btnLive').addEventListener('click',()=>{viewIndex=null;update();});
  $('btnGround1').addEventListener('click',()=>{$('inputY1').value=0;$('inputV1').value=0;apply();});
- $('btnGround2').addEventListener('click',()=>{$('inputY1').value=6;$('inputV1').value=0;apply();});
+ $('btnGround2').addEventListener('click',()=>{$('inputY1').value=sim.ropeSum;$('inputV1').value=0;apply();});
  $('btnG10').addEventListener('click',()=>{$('inputG').value=10;apply();});
  $('btnG98').addEventListener('click',()=>{$('inputG').value=9.8;apply();});
  $('speedSelect').addEventListener('change',()=>{speed=Number($('speedSelect').value);accumulator=0;last=null;});
  $('toggleFBD').addEventListener('change',()=>{renderer.showFBD=$('toggleFBD').checked;update();});
  $('toggleRuler').addEventListener('change',()=>{renderer.showRuler=$('toggleRuler').checked;update();});
- for(const [id,key]of [['All','all'],['Pos','pos'],['Vel','vel'],['Force','force']]){
+ for(const [id,key]of [['All','all'],['Pos','pos'],['Vel','vel'],['Acc','acc'],['Force','force']]){
   $('tab'+id).addEventListener('click',()=>{
    for(const b of document.querySelectorAll('.tab-btn')){const active=b.id==='tab'+id;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));}
    charts.setActiveTab(key);
-   $('forceToggles').hidden=key==='pos'||key==='vel';
+   $('forceToggles').hidden=key==='pos'||key==='vel'||key==='acc';
   });
  }
  for(const b of document.querySelectorAll('.series-btn'))b.addEventListener('click',()=>{
@@ -691,11 +788,14 @@ document.addEventListener('DOMContentLoaded',()=>{
  });
  window.addEventListener('keydown',e=>{
   if(e.code==='Escape'&&graphsSection.classList.contains('expanded')){expandGraphs(false);return;}
-  if(e.target.closest('input,select,textarea,button,summary')||e.ctrlKey||e.metaKey||e.altKey||e.repeat)return;
+  if(e.target.closest('input,select,textarea,summary')||e.ctrlKey||e.metaKey||e.altKey||e.repeat)return;
+  // Space always means play/pause, even with a button focused (otherwise it would press that button, e.g. "איפוס").
   if(e.code==='Space'){e.preventDefault();play(!running);}
+  else if(e.target.closest('button'))return;
   else if(e.code==='KeyR')$('btnReset').click();
   else if(e.code==='KeyS')$('btnStep').click();
  });
+ window.addEventListener('keyup',e=>{if(e.code==='Space'&&e.target.closest('button'))e.preventDefault();});
  document.addEventListener('visibilitychange',()=>{if(document.hidden)play(false);});
  const resize=()=>{renderer.resize();charts.resize();update();};
  if(typeof ResizeObserver!=='undefined'){
@@ -704,13 +804,13 @@ document.addEventListener('DOMContentLoaded',()=>{
  function tick(timestamp){
   if(last===null)last=timestamp;
   if(running){
-   accumulator+=Math.min(.1,(timestamp-last)/1000)*speed;
+   accumulator+=Math.min(.1,(timestamp-last)/1000)*speed*Math.max(1,runDuration/MAX_WALL_SECONDS);
    while(accumulator>=.01&&running){accumulator-=.01;advance(.01);}
    update();
   }
   last=timestamp;requestAnimationFrame(tick);
  }
- reset();requestAnimationFrame(tick);
+ reset();if(embedded)$('tabPos').click();requestAnimationFrame(tick);
 });
 
 </script>
