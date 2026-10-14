@@ -77,6 +77,7 @@ const mechanicsData = {
             { title: "הדגמת כיתה: טיל בלון על חוט (פעולה ותגובה) - סרטון הדרכה", link: "https://www.youtube.com/watch?v=iV3NXFkdUyw", note: "צריך: בלון, קש, חוט ונייר דבק." }
         ],
         videos: [
+            { title: "סימולציה: מכונת אטווד - שני גופים, חוט וגלגלת (מעבדה מקומית)", embed: '<iframe src="Atwood/atwood-lab.html" width="800" height="600" allowfullscreen></iframe>' },
             { title: "שלושת חוקי התנועה של ניוטון (מכון דוידסון)", embed: '<iframe src="https://www.youtube.com/embed/zCNSO002jfI" frameborder="0" allowfullscreen></iframe>' },
             { title: "הכוחות הבסיסיים: כובד, נורמל ומתיחות (מבוא לפיזיקה, בר-אילן)", embed: '<iframe src="https://www.youtube.com/embed/LzHgQTUegQI" frameborder="0" allowfullscreen></iframe>' },
             { title: "כוח ושקול כוחות (מבוא לפיזיקה, בר-אילן)", embed: '<iframe src="https://www.youtube.com/embed/CBPr-_Xizng" frameborder="0" allowfullscreen></iframe>' },
@@ -91,7 +92,6 @@ const mechanicsData = {
             { title: "האם שוקלים פחות במעלית? (TED-Ed, אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/2k-2IlJcaHg" frameborder="0" allowfullscreen></iframe>' },
             { title: "חוקי ניוטון (Crash Course Physics #5, אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/kKKM8Y-u7ds" frameborder="0" allowfullscreen></iframe>' },
             { title: "הרצאה מלאה: חוקי ניוטון (וולטר לוין, MIT 8.01 הרצאה 6)", embed: '<iframe src="https://www.youtube.com/embed/oduZsA0Tk58" frameborder="0" allowfullscreen></iframe>' },
-            { title: "סימולציה: מכונת אטווד - שני גופים, חוט וגלגלת (מעבדה מקומית)", embed: '<iframe src="Atwood/atwood-lab.html" width="800" height="600" allowfullscreen></iframe>' },
             { title: "סימולציה PhET: כוחות ותנועה", embed: '<iframe src="https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
             { title: "סימולציה PhET: חיכוך", embed: '<iframe src="https://phet.colorado.edu/sims/html/friction/latest/friction_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
             { title: "סימולציה PhET: כוחות במימד אחד (כולל תרשים גוף חופשי)", embed: '<iframe src="https://phet.colorado.edu/sims/cheerpj/forces-1d/latest/forces-1d.html?simulation=forces-1d&locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },

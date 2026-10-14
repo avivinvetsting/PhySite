@@ -39,3 +39,4 @@ Append-only history of finished work. `CURRENT_WORK.md` holds only open items.
 - **[Claude]** 2026-10-12: מוזגו לאתר 3 ממצאים ייחודיים מהמחקר של [Codex] (אחרי אימות): Veritasium "What is a Force?" (GmlMV7bA0TM), סימולציית Walter Fendt לניסוי החוק השני, ותרגול זיהוי כוחות של Physics Classroom. רשומת [Codex] ב-CURRENT_WORK.md הוסרה (התיישנה; הממצאים כבר מתועדים למעלה). מטמון: content.js?v=8.
 - **[Claude]** 2026-10-12: כל השינויים נכנסו לקומיט 61ab850 ונדחפו ל-origin/main.
 - **[Claude]** 2026-10-13: סימולציית מכונת אטווד (`Atwood/atwood-lab.html`, גרסה עצמאית) שולבה בפרק "כוחות וחוקי ניוטון" בלשונית סרטונים וסימולציות, לפני סימולציות PhET. נבדק בדפדפן מקומי: ה-iframe נטען, ההדמיה רצה, אין שגיאות קונסול. מטמון: content.js?v=9.
+- **[Claude]** 2026-10-14: סימולציית אטווד הועברה לראש לשונית "סרטונים וסימולציות" בפרק ניוטון (כרטיס ראשון). מטמון: content.js?v=10.
