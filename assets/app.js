@@ -101,7 +101,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         container.innerHTML = '';
+        let lastGroup = null;
         videos.forEach(vid => {
+            // Optional "group" field: a topic heading is inserted whenever the group changes
+            if (vid.group && vid.group !== lastGroup) {
+                const heading = document.createElement('h3');
+                heading.className = 'video-group-title';
+                heading.textContent = vid.group;
+                container.appendChild(heading);
+                lastGroup = vid.group;
+            }
             const div = document.createElement('div');
             div.className = 'video-card';
             

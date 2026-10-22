@@ -20,6 +20,8 @@ const mechanicsData = {
             { title: "מצגת 2: מהירות ותאוצה קבועה", link: "#" }
         ],
         exercises: [
+            { title: "תרגול - תנועה במהירות קבועה (PDF)", link: "files/kinematics/constant-velocity-exercises.pdf", note: '<strong style="color: #c0392b;">⭐ חשוב מאוד לשיעור הראשון!</strong> דף התרגול המרכזי של השיעור - מיקום, העתק ומהירות קבועה.' },
+            { title: "פתרונות - תנועה במהירות קבועה (PDF)", link: "files/kinematics/constant-velocity-solutions.pdf" },
             { title: "תרגיל 1 - מושגי יסוד ומהירות קבועה", link: "#" },
             { title: "תרגיל 2 - תאוצה קבועה ומשוואות תנועה", link: "#" },
             { title: "תרגיל 3 - נפילה חופשית וזריקה אנכית", link: "#" }
@@ -152,11 +154,48 @@ const electricityData = {
         summary: "<p>מטענים, שדות חשמליים ופוטנציאל.</p>",
         presentations: [], exercises: [], exams: [],
         videos: [
-            { title: "שדה חשמלי מומחש באמצעות גבישים", embed: '<iframe src="https://www.youtube.com/embed/63FnT0W-Hxc" frameborder="0" allowfullscreen></iframe>' },
-            { title: "הדגמה: משיכה ודחייה אלקטרוסטטית", embed: '<iframe src="https://www.youtube.com/embed/ceUApJ_LUzU" frameborder="0" allowfullscreen></iframe>' },
-            { title: "הדגמה: מחולל ואן דר גראף (חשמל סטטי)", embed: '<iframe src="https://www.youtube.com/embed/Ii1UifBoTb0" frameborder="0" allowfullscreen></iframe>' },
-            { title: "9 טריקים מדעיים לחשמל סטטי", embed: '<iframe src="https://www.youtube.com/embed/ViZNgU-Yt-Y" frameborder="0" allowfullscreen></iframe>' },
-            { title: "לראות פיזיקה - מנועים אלקטרוסטטיים", embed: '<iframe src="https://www.youtube.com/embed/ng7YMF-NNZs" frameborder="0" allowfullscreen></iframe>' }
+            { group: "מטען חשמלי וטעינה", title: "אלקטרוסטטיקה - מבוא (מרכז שוורץ/רייסמן)", embed: '<iframe src="https://www.youtube.com/embed/ojPN4S_ONfc" frameborder="0" allowfullscreen></iframe>' },
+            { group: "מטען חשמלי וטעינה", title: "הדגמות: טעינה ופריקה של גופים (מרכז שוורץ/רייסמן)", embed: '<iframe src="https://www.youtube.com/embed/0DJO4p0_vYI" frameborder="0" allowfullscreen></iframe>' },
+            { group: "מטען חשמלי וטעינה", title: "הדגמה: משיכה ודחייה אלקטרוסטטית", embed: '<iframe src="https://www.youtube.com/embed/ceUApJ_LUzU" frameborder="0" allowfullscreen></iframe>' },
+            { group: "מטען חשמלי וטעינה", title: "הדגמה: טעינה ופריקה של אלקטרוסקופ", embed: '<iframe src="https://www.youtube.com/embed/kY4CiziBDv4" frameborder="0" allowfullscreen></iframe>' },
+            { group: "מטען חשמלי וטעינה", title: "מוליכים ומבודדים", embed: '<iframe src="https://www.youtube.com/embed/qDvdZZYoFXE" frameborder="0" allowfullscreen></iframe>' },
+            { group: "מטען חשמלי וטעינה", title: "הדגמה: הזזת זרם מים בחשמל סטטי (מכון דוידסון)", embed: '<iframe src="https://www.youtube.com/embed/Fd8JigRWbQ4" frameborder="0" allowfullscreen></iframe>' },
+            { group: "מטען חשמלי וטעינה", title: "המדע של החשמל הסטטי (TED-Ed, אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/yc2-363MIQs" frameborder="0" allowfullscreen></iframe>' },
+            { group: "מטען חשמלי וטעינה", title: "סימולציה PhET: בלונים וחשמל סטטי", embed: '<iframe src="https://phet.colorado.edu/sims/html/balloons-and-static-electricity/latest/balloons-and-static-electricity_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+            { group: "מטען חשמלי וטעינה", title: "סימולציה PhET: ג'ון טרבולטאז' (טעינה ופריקה)", embed: '<iframe src="https://phet.colorado.edu/sims/html/john-travoltage/latest/john-travoltage_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+
+            { group: "חוק קולון", title: "הסבר חוק קולון ב-3 דקות (חנה קדמי)", embed: '<iframe src="https://www.youtube.com/embed/sqQ0dNGb01I" frameborder="0" allowfullscreen></iframe>' },
+            { group: "חוק קולון", title: "הכוח החשמלי: חוק קולון (אריאל ליבזון)", embed: '<iframe src="https://www.youtube.com/embed/FmPH9O28mbc" frameborder="0" allowfullscreen></iframe>' },
+            { group: "חוק קולון", title: "מטענים נקודתיים - תרגול חוק קולון (מרכז שוורץ/רייסמן)", embed: '<iframe src="https://www.youtube.com/embed/6a8fhZYih4A" frameborder="0" allowfullscreen></iframe>' },
+            { group: "חוק קולון", title: "הרצאה מלאה: מטענים, חוק קולון וקיטוב (וולטר לוין, MIT 8.02, אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/x1-SibwIPM4" frameborder="0" allowfullscreen></iframe>' },
+            { group: "חוק קולון", title: "סימולציה PhET: חוק קולון", embed: '<iframe src="https://phet.colorado.edu/sims/html/coulombs-law/latest/coulombs-law_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+
+            { group: "שדה חשמלי וקווי שדה", title: "ניסוי: המחשת קווי שדה חשמלי (אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/IoaPm-VTtCM" frameborder="0" allowfullscreen></iframe>' },
+            { group: "שדה חשמלי וקווי שדה", title: "שדה חשמלי מומחש באמצעות גבישים", embed: '<iframe src="https://www.youtube.com/embed/63FnT0W-Hxc" frameborder="0" allowfullscreen></iframe>' },
+            { group: "שדה חשמלי וקווי שדה", title: "מיפוי קווי שדה של מטען נקודתי", embed: '<iframe src="https://www.youtube.com/embed/uB-rB1r561w" frameborder="0" allowfullscreen></iframe>' },
+            { group: "שדה חשמלי וקווי שדה", title: "חוק קולון והשדה החשמלי - מרתון לבגרות (אריאל ליבזון)", embed: '<iframe src="https://www.youtube.com/embed/j8OclInR9yU" frameborder="0" allowfullscreen></iframe>' },
+            { group: "שדה חשמלי וקווי שדה", title: "סימולציה PhET: מטענים ושדות (קווי שדה של מטענים נקודתיים)", embed: '<iframe src="https://phet.colorado.edu/sims/html/charges-and-fields/latest/charges-and-fields_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+            { group: "שדה חשמלי וקווי שדה", title: "סימולציה PhET: הוקי חשמלי", embed: '<iframe src="https://phet.colorado.edu/sims/cheerpj/electric-hockey/latest/electric-hockey.html?simulation=electric-hockey&locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+
+            { group: "פוטנציאל חשמלי ומתח", title: "הקשר בין מתח חשמלי לשדה חשמלי (מרכז שוורץ/רייסמן)", embed: '<iframe src="https://www.youtube.com/embed/-W3hzRfxihQ" frameborder="0" allowfullscreen></iframe>' },
+            { group: "פוטנציאל חשמלי ומתח", title: "הקשר בין שדה חשמלי לפוטנציאל (מרכז שוורץ/רייסמן)", embed: '<iframe src="https://www.youtube.com/embed/v19izyD8GdA" frameborder="0" allowfullscreen></iframe>' },
+            { group: "פוטנציאל חשמלי ומתח", title: "משטחים שווי פוטנציאל (מרכז שוורץ/רייסמן)", embed: '<iframe src="https://www.youtube.com/embed/lezHfJFCrrM" frameborder="0" allowfullscreen></iframe>' },
+            { group: "פוטנציאל חשמלי ומתח", title: "עבודת השדה החשמלי ואנרגיה פוטנציאלית חשמלית (מרכז שוורץ/רייסמן)", embed: '<iframe src="https://www.youtube.com/embed/6MQ2jdoIxqQ" frameborder="0" allowfullscreen></iframe>' },
+            { group: "פוטנציאל חשמלי ומתח", title: "שדה במוליכים, פוטנציאל ומתח - הרצאה (גדי פרנקל)", embed: '<iframe src="https://www.youtube.com/embed/BdwPoUZr8Yo" frameborder="0" allowfullscreen></iframe>' },
+
+            { group: "קבלים", title: "קיבול וקבלים - מרתון לבגרות (אריאל ליבזון)", embed: '<iframe src="https://www.youtube.com/embed/0G8Ai-Diceo" frameborder="0" allowfullscreen></iframe>' },
+            { group: "קבלים", title: "קיבול וקבלים 1: הגדרות הקבל והקיבול (גדי פרנקל)", embed: '<iframe src="https://www.youtube.com/embed/LtwnubjScM4" frameborder="0" allowfullscreen></iframe>' },
+            { group: "קבלים", title: "קיבול וקבלים 3: חיבור בטור ובמקביל (גדי פרנקל)", embed: '<iframe src="https://www.youtube.com/embed/_KYzrQSrcbc" frameborder="0" allowfullscreen></iframe>' },
+            { group: "קבלים", title: "קיבול וקבלים 4: האנרגיה האגורה בקבל (גדי פרנקל)", embed: '<iframe src="https://www.youtube.com/embed/_XBgkSYaWS8" frameborder="0" allowfullscreen></iframe>' },
+            { group: "קבלים", title: "סימולציה PhET: מעבדת קבלים", embed: '<iframe src="https://phet.colorado.edu/sims/html/capacitor-lab-basics/latest/capacitor-lab-basics_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+
+            { group: "הדגמות ותופעות", title: "הדגמות: מכונת ואן דה גראף (מרכז שוורץ/רייסמן)", embed: '<iframe src="https://www.youtube.com/embed/BPicQM1c9uw" frameborder="0" allowfullscreen></iframe>' },
+            { group: "הדגמות ותופעות", title: "הדגמה: מחולל ואן דר גראף (חשמל סטטי)", embed: '<iframe src="https://www.youtube.com/embed/Ii1UifBoTb0" frameborder="0" allowfullscreen></iframe>' },
+            { group: "הדגמות ותופעות", title: "איך עובד מחולל ואן דה גראף - הדגמות והסברים (RimstarOrg, אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/Gf6EbRmYImI" frameborder="0" allowfullscreen></iframe>' },
+            { group: "הדגמות ותופעות", title: "כלוב פאראדיי (מרכז שוורץ/רייסמן)", embed: '<iframe src="https://www.youtube.com/embed/WdbYj_IDdtI" frameborder="0" allowfullscreen></iframe>' },
+            { group: "הדגמות ותופעות", title: "כלוב פאראדיי וניסוי דלי הקרח (Kathy Loves Physics, אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/KVDCf9sz3fw" frameborder="0" allowfullscreen></iframe>' },
+            { group: "הדגמות ותופעות", title: "9 טריקים מדעיים לחשמל סטטי", embed: '<iframe src="https://www.youtube.com/embed/ViZNgU-Yt-Y" frameborder="0" allowfullscreen></iframe>' },
+            { group: "הדגמות ותופעות", title: "לראות פיזיקה - מנועים אלקטרוסטטיים", embed: '<iframe src="https://www.youtube.com/embed/ng7YMF-NNZs" frameborder="0" allowfullscreen></iframe>' }
         ]
     },
     "circuits": {

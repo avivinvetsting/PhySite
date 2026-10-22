@@ -265,6 +265,18 @@ body {
     gap: 20px;
 }
 
+.video-group-title {
+    grid-column: 1 / -1;
+    font-size: 1.3rem;
+    margin: 15px 0 0;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.video-group-title:first-child {
+    margin-top: 0;
+}
+
 .video-card {
     background: var(--bg-color);
     padding: 15px;
