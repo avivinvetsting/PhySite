@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.title.includes('חשמל')) dataObj = typeof electricityData !== 'undefined' ? electricityData : {};
         else if (document.title.includes('גלים')) dataObj = typeof wavesData !== 'undefined' ? wavesData : {};
         else if (document.title.includes('אופטיקה')) dataObj = typeof opticsData !== 'undefined' ? opticsData : {};
+        else if (document.title.includes('מתמטיקה')) dataObj = typeof mathData !== 'undefined' ? mathData : {};
         
         const data = dataObj[chapterId];
         if (!data) {

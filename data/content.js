@@ -41,9 +41,10 @@ const mechanicsData = {
         summary: `<p>תנועה בשני מימדים.</p>`,
         presentations: [], exercises: [], exams: [],
         videos: [
-            { title: "הדגמה: הקוף והצייד", embed: '<iframe src="https://www.youtube.com/embed/HGpGbcHYA6I" frameborder="0" allowfullscreen></iframe>' },
+            { title: "הדגמה: הקוף והצייד", embed: '<iframe src="https://www.youtube.com/embed/MkKEwrshYWs" frameborder="0" allowfullscreen></iframe>' },
+            { title: "הדגמה: ירי מול הפלה חופשית (Shoot-n-Drop, Harvard)", embed: '<iframe src="https://www.youtube.com/embed/zMF4CD7i3hg" frameborder="0" allowfullscreen></iframe>' },
             { title: "הדגמה: תנועה אופקית נשארת קבועה", embed: '<iframe src="https://www.youtube.com/embed/KacTRPL1MtE" frameborder="0" allowfullscreen></iframe>' },
-            { title: "הדגמה: ירי מול הפלה חופשית (פרופ' הפנר)", embed: '<iframe src="https://www.youtube.com/embed/Z3BSfkoVfTI" frameborder="0" allowfullscreen></iframe>' },
+            { title: "הדגמה: ירי מול הפלה חופשית (פרופ\' הפנר)", embed: '<iframe src="https://www.youtube.com/embed/Z3BSfkoVfTI" frameborder="0" allowfullscreen></iframe>' },
             { title: "סימולציה PhET: זריקה משופעת", embed: '<iframe src="https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' }
         ]
     },
@@ -252,6 +253,164 @@ const opticsData = {
         presentations: [], exercises: [], exams: [],
         videos: [
             { title: "עדשות, שבירת אור ואשליות אופטיות", embed: '<iframe src="https://www.youtube.com/embed/GE-VeEQFqX4" frameborder="0" allowfullscreen></iframe>' }
+        ]
+    }
+};
+
+
+const mathData = {
+    "functions": {
+        title: "פונקציות: ליניאריות וריבועיות",
+        summary: `
+            <h3>מבוא לפונקציות בפיזיקה</h3>
+            <p>השפה המתמטית של הפיזיקה מתארת כיצד גדלים פיזיקליים משתנים ביחס לגדלים אחרים (למשל מיקום, מהירות או אנרגיה כפונקציה של הזמן).</p>
+            
+            <h3>1. פונקציה ליניארית (קווית)</h3>
+            <p>המשוואה הכללית: <code>y = mx + b</code></p>
+            <ul>
+                <li><strong>שיפוע הישר (m):</strong> מוגדר כשיעור השינוי <code>m = &Delta;y / &Delta;x = (y₂ - y₁) / (x₂ - x₁)</code>. בפיזיקה: שיפוע גרף מקום-זמן הוא המהירות (<code>v = &Delta;x / &Delta;t</code>), ושיפוע גרף מהירות-זמן הוא התאוצה (<code>a = &Delta;v / &Delta;t</code>).</li>
+                <li><strong>נקודת חיתוך עם ציר y (ערך b):</strong> ערך ה-y כאשר x=0. בפיזיקה מייצג את תנאי ההתחלה: מקום התחלתי <code>x₀</code> או מהירות התחלתית <code>v₀</code>.</li>
+                <li><strong>משוואת הישר לפי נקודה ושיפוע:</strong> <code>y - y₁ = m(x - x₁)</code>.</li>
+            </ul>
+
+            <h3>2. פונקציה ריבועית (פרבולה)</h3>
+            <p>המשוואה הכללית: <code>y = ax² + bx + c</code> (כאשר a &ne; 0)</p>
+            <ul>
+                <li><strong>צורת הגרף:</strong> פרבולה. אם <code>a > 0</code> הפרבולה "מחייכת" (קמורה כלפי מטה, נקודת מינימום). אם <code>a < 0</code> הפרבולה "בוכה" (קעורה כלפי מטה, נקודת מקסימום).</li>
+                <li><strong>קודקוד הפרבולה:</strong> נקודת הקיצון מתקבלת בשיעור <code>x_v = -b / (2a)</code>. הצבת x_v במשוואה נותנת את ה-y המקסימלי/מינימלי. בפיזיקה, שיא הגובה בזריקה אנכית מתקבל בדיוק ברגע בו המהירות מתאפסת (בקודקוד הפרבולה של <code>y(t)</code>).</li>
+                <li><strong>משמעות פיזיקלית:</strong> בתנועה שוות תאוצה, משוואת המקום-זמן היא פונקציה ריבועית של הזמן: <code>x(t) = x₀ + v₀t + &frac12;at²</code>.</li>
+            </ul>
+        `,
+        presentations: [
+            { title: "מצגת: פונקציות ליניאריות ומשמעותן הגרפית בפיזיקה (PDF)", link: "#" },
+            { title: "מצגת: הפונקציה הריבועית ופרבולות בקינמטיקה (PDF)", link: "#" }
+        ],
+        exercises: [
+            { title: "דף תרגול: מציאת שיפוע ומשוואת ישר מגרפים בפיזיקה", link: "#", note: "תרגול קריאת גרפי מקום-זמן ומהירות-זמן, מציאת שיפוע והסקת מהירות ותאוצה." },
+            { title: "דף תרגול: חקירת פרבולה של תנועה שוות תאוצה", link: "#", note: "מציאת קודקוד, נקודות חיתוך ושיא גובה." }
+        ],
+        exams: [
+            { title: "שאלת בגרות לדוגמה: ניתוח גרפים ליניאריים וריבועיים במכניקה", link: "#" }
+        ],
+        activities: [
+            { title: "PhET: חקירת גרף של קו ישר (שיפוע ונקודת חיתוך)", link: "https://phet.colorado.edu/sims/html/graphing-lines/latest/graphing-lines_all.html?locale=he", note: "חקירה אינטראקטיבית של שינוי השיפוע m ונקודת החיתוך b עם משוב מיידי." },
+            { title: "PhET: חקירת פונקציה ריבועית (פרבולה)", link: "https://phet.colorado.edu/sims/html/graphing-quadratics/latest/graphing-quadratics_all.html?locale=he", note: "משחקים עם המקדמים a, b, c ורואים את השינוי בקודקוד, בצירי הסימטריה ובנקודות האפס." }
+        ],
+        videos: [
+            { group: "סימולציות אינטראקטיביות", title: "סימולציה PhET: חקירת גרף של קו ישר (Graphing Lines)", embed: '<iframe src="https://phet.colorado.edu/sims/html/graphing-lines/latest/graphing-lines_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+            { group: "סימולציות אינטראקטיביות", title: "סימולציה PhET: חקירת פונקציה ריבועית ופרבולה (Graphing Quadratics)", embed: '<iframe src="https://phet.colorado.edu/sims/html/graphing-quadratics/latest/graphing-quadratics_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+            { group: "פונקציה ליניארית (קווית)", title: "פונקציות ליניאריות - היכרות (הטכניון, ד\"ר אביב צנזור)", embed: '<iframe src="https://www.youtube.com/embed/TDa1uoZjA30" frameborder="0" allowfullscreen></iframe>' },
+            { group: "פונקציה ליניארית (קווית)", title: "פונקציות וגרפים: פונקציות לינאריות (הטכניון, ד\"ר אביב צנזור)", embed: '<iframe src="https://www.youtube.com/embed/Qjb0QN4TeXA" frameborder="0" allowfullscreen></iframe>' },
+            { group: "פונקציה ריבועית", title: "הפונקציה הריבועית - הגדרה (הטכניון, ד\"ר אביב צנזור)", embed: '<iframe src="https://www.youtube.com/embed/Fla2OGUOG64" frameborder="0" allowfullscreen></iframe>' },
+            { group: "פונקציה ריבועית", title: "הפונקציה הריבועית - הגרף (הטכניון, ד\"ר אביב צנזור)", embed: '<iframe src="https://www.youtube.com/embed/4AC1ROsrouY" frameborder="0" allowfullscreen></iframe>' },
+            { group: "פונקציה ריבועית", title: "משוואות ריבועיות: קודקוד הפרבולה (הטכניון, ד\"ר אביב צנזור)", embed: '<iframe src="https://www.youtube.com/embed/-mZhuCo7sJQ" frameborder="0" allowfullscreen></iframe>' }
+        ]
+    },
+    "quadratic_equations": {
+        title: "פתירת משוואות ריבועיות",
+        summary: `
+            <h3>פתרון משוואות ריבועיות והקשר לפיזיקה</h3>
+            <p>משוואה ריבועית בצורתה הסטנדרטית נראית כך: <code>ax² + bx + c = 0</code> (כאשר <code>a &ne; 0</code>).</p>
+            
+            <h3>1. נוסחת השורשים</h3>
+            <p>פתרונות המשוואה נתונים על ידי הנוסחה:</p>
+            <p style="text-align: center; font-size: 1.2rem; font-weight: bold; direction: ltr; margin: 10px 0;">
+                x₁,₂ = (-b &plusmn; &radic;(b² - 4ac)) / (2a)
+            </p>
+
+            <h3>2. המבחין (דיסקרימיננטה: &Delta; = b² - 4ac)</h3>
+            <ul>
+                <li><strong>&Delta; > 0:</strong> קיימים שני פתרונות ממשיים שונים. בפיזיקה: למשל גוף שנזרק למעלה חוצה גובה נתון פעמיים (פעם בעלייה ופעם בירידה).</li>
+                <li><strong>&Delta; = 0:</strong> קיים פתרון יחיד (שורש כפול). בפיזיקה: הגוף מגיע בדיוק לשיא הגובה בנקודה זו.</li>
+                <li><strong>&Delta; < 0:</strong> אין פתרונות ממשיים. בפיזיקה: הגוף אינו מגיע לגובה זה כלל באנרגיה הנתונה.</li>
+            </ul>
+
+            <h3>3. מקרים מנוונים ופישוטים נפוצים בפיזיקה</h3>
+            <ul>
+                <li><strong>כאשר c = 0 (ללא איבר חופשי):</strong> <code>ax² + bx = 0 &rArr; x(ax + b) = 0</code>. הפתרונות הם <code>x₁ = 0</code> ו-<code>x₂ = -b/a</code>. שימושי מאוד במציאת זמן מעוף של גוף הנזרק מהקרקע וחוזר לקרקע (ב-t=0 וב-t=זמן מעוף).</li>
+                <li><strong>כאשר b = 0 (ללא איבר ליניארי):</strong> <code>ax² + c = 0 &rArr; x² = -c/a &rArr; x = &plusmn;&radic;(-c/a)</code>. שימושי בנפילה חופשית ממנוחה (<code>h = &frac12;gt² &rArr; t = &radic;(2h/g)</code>).</li>
+            </ul>
+
+            <h3>4. בחירת הפתרון הפיזיקלי</h3>
+            <p>בבעיות פיזיקליות של תנועה (זמן <code>t</code>), לעיתים מתקבל פתרון חיובי ופתרון שלילי. ברוב המקרים נפסול את הפתרון השלילי (כי האירוע התרחש לאחר תחילת המדידה <code>t &ge; 0</code>), אלא אם כן מדובר בשאלה של "מה קרה לפני כן".</p>
+        `,
+        presentations: [
+            { title: "מצגת: שיטות לפתרון משוואות ריבועיות בפיזיקה (PDF)", link: "#" }
+        ],
+        exercises: [
+            { title: "דף תרגול: פתרון משוואות ריבועיות בקינמטיקה", link: "#", note: "משוואות תנועה, מציאת זמני פגיעה בקרקע וזמני מפגש בין גופים." },
+            { title: "דף תרגול: מקרים מנוונים (הוצאת גורם משותף ובידוד משתנה)", link: "#" }
+        ],
+        exams: [
+            { title: "שאלת בגרות לדוגמה: שימוש בנוסחת השורשים בפתרון תרגיל מכניקה", link: "#" }
+        ],
+        activities: [
+            { title: "Wolfram Alpha / Mathway: כלי לפתרון משוואות עם שלבים", link: "https://www.wolframalpha.com/input?i=solve+quadratic+equation", note: "מחשבון אלגברי המציג את שלבי פתרון נוסחת השורשים והפירוק לגורמים." }
+        ],
+        videos: [
+            { title: "פתרון משוואה ריבועית – כל השיטות: נוסחת השורשים ופירוק לגורמים (Level Up)", embed: '<iframe src="https://www.youtube.com/embed/PqJx1u7juG0" frameborder="0" allowfullscreen></iframe>' },
+            { title: "נוסחת השורשים והמבחין (הטכניון, ד\"ר אביב צנזור)", embed: '<iframe src="https://www.youtube.com/embed/tyKwlClBVyo" frameborder="0" allowfullscreen></iframe>' },
+            { title: "הוכחת נוסחת השורשים (הטכניון, ד\"ר אביב צנזור)", embed: '<iframe src="https://www.youtube.com/embed/WmbUMFMIf0g" frameborder="0" allowfullscreen></iframe>' }
+        ]
+    },
+    "vectors": {
+        title: "חשבון וקטורי",
+        summary: `
+            <h3>מבוא לוקטורים בפיזיקה</h3>
+            <p>בטבע ישנם שני סוגי גדלים עיקריים:</p>
+            <ul>
+                <li><strong>סקלר (Scalar):</strong> גודל מספרי בלבד בעל יחידות מידה (מסה, זמן, טמפרטורה, אנרגיה).</li>
+                <li><strong>וקטור (Vector):</strong> גודל בעל עוצמה (אורך/ערך חיובי) ו<strong>כיוון במרחב</strong> (העתק, מהירות, תאוצה, כוח, תנע).</li>
+            </ul>
+
+            <h3>1. פירוק וקטור לרכיבים במערכת צירים קרטזית</h3>
+            <p>בהינתן וקטור בעל גודל <code>V</code> היוצר זווית <code>&theta;</code> ביחס לציר האופקי (ציר x):</p>
+            <ul>
+                <li>רכיב אופקי: <code>V_x = V &middot; cos(&theta;)</code></li>
+                <li>רכיב אנכי: <code>V_y = V &middot; sin(&theta;)</code></li>
+            </ul>
+            <p>ובכיוון ההפוך (שחזור גודל וכיוון מתוך רכיבים):</p>
+            <ul>
+                <li>גודל הוקטור (משפט פיתגורס): <code>V = &radic;(V_x² + V_y²)</code></li>
+                <li>זווית הנטייה: <code>tan(&theta;) = V_y / V_x &rArr; &theta; = arctan(V_y / V_x)</code> (תוך תשומת לב לרביע הנכון).</li>
+            </ul>
+
+            <h3>2. פעולות בוקטורים</h3>
+            <ul>
+                <li><strong>חיבור וקטורים:</strong>
+                    <ul>
+                        <li><em>שיטה גרפית:</em> חיבור "ראש לזנב" או שיטת המקבילית.</li>
+                        <li><em>שיטה אלגברית (רכיבים):</em> סוכמים את הרכיבים בנפרד: <code>R_x = A_x + B_x</code>, <code>R_y = A_y + B_y</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>חיסור וקטורים:</strong> <code>A - B = A + (-B)</code>, כאשר <code>-B</code> הוא וקטור בעל אותו גודל אך בכיוון הפוך בדיוק (180&deg;). שימושי לחישוב שינוי במהירות <code>&Delta;v = v_final - v_initial</code>.</li>
+                <li><strong>כפל בסקלר:</strong> כפל וקטור במספר חיובי מגדיל/מקטין את אורכו מבלי לשנות את כיוונו. כפל במספר שלילי הופך גם את כיוונו.</li>
+            </ul>
+
+            <h3>3. מעבדת הוקטורים האינטראקטיבית (VecMath)</h3>
+            <p>לרשותכם סימולציית <strong>VecMath</strong> בלשונית 'סרטונים וסימולציות' וב'פעילויות'. הסימולציה מאפשרת התנסות חיה בחיבור, חיסור, כפל בסקלר, פירוק לרכיבים ובדיקת זוויות בזמן אמת.</p>
+        `,
+        presentations: [
+            { title: "מצגת: מבוא לוקטורים ופירוק לרכיבים (PDF)", link: "#" },
+            { title: "מצגת: חיבור, חיסור וצירופים ליניאריים של וקטורים (PDF)", link: "#" }
+        ],
+        exercises: [
+            { title: "דף תרגול: חישוב רכיבי וקטור ומציאת שקול כוחות", link: "#", note: "תרגול פירוק כוחות במישור ומציאת גודל וכיוון השקול." },
+            { title: "דף תרגול: חיבור וחיסור וקטורי בקינמטיקה דו-מימדית", link: "#" }
+        ],
+        exams: [
+            { title: "שאלת בגרות לדוגמה: שקול כוחות ותרשים גוף חופשי דו-מימדי", link: "#" }
+        ],
+        activities: [
+            { title: "מעבדת וקטורים אינטראקטיבית - VecMath (מעבדה מקומית)", link: "VecMath/vec-math.html", note: "⭐ סימולציה אינטראקטיבית מלאה (פתיחה במסך מלא): הצגת וקטור בודד, פירוק לרכיבים, חיבור, חיסור, כפל בסקלר וצירופים ליניאריים." },
+            { title: "Physics Classroom: תרגול חיבור וקטורים אינטראקטיבי (אנגלית)", link: "https://www.physicsclassroom.com/Physics-Interactives/Vectors-and-Projectiles/Vector-Addition", note: "תרגול חיבור וקטורים ומציאת שקול." }
+        ],
+        videos: [
+            { group: "מעבדות וסימולציות אינטראקטיביות", title: "סימולציה: מעבדת וקטורים אינטראקטיבית (VecMath)", embed: '<iframe src="VecMath/vec-math.html" width="800" height="600" allowfullscreen></iframe>' },
+            { group: "מעבדות וסימולציות אינטראקטיביות", title: "סימולציה PhET: חיבור וקטורים (Vector Addition)", embed: '<iframe src="https://phet.colorado.edu/sims/html/vector-addition/latest/vector-addition_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+            { group: "הסברים והרצאות בפיזיקה", title: "פיזיקה שאפשר להבין: פירוק וקטור לרכיבים", embed: '<iframe src="https://www.youtube.com/embed/-m1TBt9iYNc" frameborder="0" allowfullscreen></iframe>' },
+            { group: "הסברים והרצאות בפיזיקה", title: "וקטורים במכניקה - מרתון לבגרות בפיזיקה (אריאל ליבזון)", embed: '<iframe src="https://www.youtube.com/embed/zSnxWlGmKjc" frameborder="0" allowfullscreen></iframe>' },
+            { group: "הסברים והרצאות בפיזיקה", title: "פירוק וקטור לרכיבים על צירים XY (MATIMATIX)", embed: '<iframe src="https://www.youtube.com/embed/yRZEVjTUHnQ" frameborder="0" allowfullscreen></iframe>' }
         ]
     }
 };

@@ -1,0 +1,2141 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מעבדת וקטורים אינטראקטיבית - חיבור, חיסור וכפל בסקלר</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Assistant', sans-serif;
+            user-select: none;
+            background-color: #f8fafc;
+        }
+        .math-font {
+            font-family: 'JetBrains Mono', monospace;
+            direction: ltr;
+            display: inline-block;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        input[type="range"] {
+            accent-color: #4f46e5;
+        }
+        .vector-overbar {
+            text-decoration: overline;
+            font-weight: 700;
+        }
+        canvas {
+            touch-action: none;
+            display: block;
+        }
+    </style>
+</head>
+<body class="w-full max-w-full h-screen flex flex-col overflow-hidden text-slate-800">
+
+    <!-- Top Header & Live Formula Bar -->
+    <header class="w-full bg-white border-b border-slate-200 px-3 py-2 shadow-sm z-20 flex flex-wrap items-center justify-between gap-2 shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <div class="bg-indigo-600 text-white p-1.5 rounded-xl shadow-sm flex items-center justify-center shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H10M17 7V14" />
+                </svg>
+            </div>
+            <div class="truncate">
+                <h1 class="text-base md:text-lg font-extrabold text-slate-900 leading-tight truncate">מעבדת וקטורים אינטראקטיבית</h1>
+                <p class="text-[11px] text-slate-500 hidden sm:block truncate">מערכת צירים להוראת וקטורים: וקטור בודד, חיבור, חיסור וכפל בסקלר</p>
+            </div>
+        </div>
+
+        <!-- Live Formula Banner -->
+        <div id="live-equation-banner" class="bg-slate-900 text-white px-3 py-1.5 rounded-xl shadow-inner flex items-center gap-2 text-xs md:text-sm overflow-x-auto max-w-full">
+            <span class="math-font font-bold">R = A + B</span>
+        </div>
+
+        <!-- Quick Presets & Reset -->
+        <div class="flex items-center gap-1.5 shrink-0">
+            <select id="preset-select" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-1.5 px-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition">
+                <option value="">✨ דוגמאות מוכנות לכיתה...</option>
+                <option value="single_a_demo">וקטור בודד ופירוק לרכיבים</option>
+                <option value="standard">חיבור רגיל (זווית חדה)</option>
+                <option value="orthogonal">וקטורים מאונכים (90°)</option>
+                <option value="obtuse">זווית קהה (135°)</option>
+                <option value="opposite">וקטורים נגדיים (סכום אפס)</option>
+                <option value="linear_comb">צירוף ליניארי (3A - 2B)</option>
+            </select>
+            
+        <!-- Back to Math Portal link -->
+        <a href="../math.html" target="_top" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold py-1.5 px-2.5 rounded-lg border border-indigo-200 transition flex items-center gap-1 shrink-0" title="חזרה לעמוד מתמטיקה">
+            <span>➔ חזרה לפורטל</span>
+        </a>
+
+            <button id="btn-reset" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-1.5 px-2.5 rounded-lg border border-slate-300 transition flex items-center gap-1" title="איפוס לתצוגה נקייה">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>איפוס</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace (RTL: Right Sidebar + Left Canvas) -->
+    <div class="flex-1 flex flex-col lg:flex-row w-full max-w-full overflow-hidden min-h-0">
+
+        <!-- Right Side (in RTL): Controls Sidebar (Fixed safe width so nothing cuts off) -->
+        <aside class="w-full lg:w-[370px] xl:w-[395px] bg-white border-l border-slate-200 flex flex-col h-[46vh] lg:h-full shrink-0 overflow-y-auto overflow-x-hidden p-3 space-y-2.5 z-10 shadow-sm">
+
+            <!-- 0. Vector Display Mode Selector (Single Vector / Two Vectors / Full) -->
+            <div class="bg-indigo-950 text-white p-2.5 rounded-xl border border-indigo-800 shadow-sm space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-indigo-200">מצב תצוגת וקטורים (להוראה הדרגתית)</span>
+                </div>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <button type="button" data-vmode="single_a" class="vmode-btn py-1.5 px-2 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+                        וקטור A בלבד
+                    </button>
+                    <button type="button" data-vmode="single_b" class="vmode-btn py-1.5 px-2 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+                        וקטור B בלבד
+                    </button>
+                    <button type="button" data-vmode="two_no_r" class="vmode-btn py-1.5 px-2 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+                        A ו-B (ללא שקול)
+                    </button>
+                    <button type="button" data-vmode="full" class="vmode-btn py-1.5 px-2 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow-sm border border-indigo-400 transition">
+                        מלא (A, B ו-R)
+                    </button>
+                </div>
+                <div class="flex items-center justify-between bg-slate-900/90 px-2.5 py-1.5 rounded-lg border border-slate-800 text-xs">
+                    <span class="text-slate-300 font-semibold">מוצגים כעת:</span>
+                    <div class="flex items-center gap-3 font-bold">
+                        <label class="flex items-center gap-1 cursor-pointer text-blue-400">
+                            <input type="checkbox" id="chk-vis-a" checked class="rounded text-blue-500 h-3.5 w-3.5">
+                            <span>A</span>
+                        </label>
+                        <label class="flex items-center gap-1 cursor-pointer text-orange-400">
+                            <input type="checkbox" id="chk-vis-b" checked class="rounded text-orange-500 h-3.5 w-3.5">
+                            <span>B</span>
+                        </label>
+                        <label class="flex items-center gap-1 cursor-pointer text-emerald-400">
+                            <input type="checkbox" id="chk-vis-r" checked class="rounded text-emerald-500 h-3.5 w-3.5">
+                            <span>R (שקול)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1. Custom Equation Input & Quick Operations -->
+            <div class="bg-slate-900 text-white p-2.5 rounded-xl border border-slate-700 shadow-sm space-y-2">
+                <div class="flex items-center justify-between">
+                    <label for="equation-input" class="text-xs font-bold text-indigo-300 flex items-center gap-1">
+                        <span>משוואה וקטורית:</span>
+                        <span class="math-font text-[11px] text-slate-400">(R = cA + dB)</span>
+                    </label>
+                    <span id="eq-status-badge" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        משוואה תקינה ✓
+                    </span>
+                </div>
+
+                <div class="relative flex items-center" dir="ltr">
+                    <span class="absolute left-3 math-font font-extrabold text-emerald-400 text-sm pointer-events-none">R =</span>
+                    <input
+                        type="text"
+                        id="equation-input"
+                        value="A + B"
+                        placeholder="3A - 2B"
+                        class="w-full math-font font-extrabold text-sm bg-slate-800 text-white border border-indigo-500/70 focus:border-indigo-400 rounded-lg pl-11 pr-3 py-1.5 text-left focus:outline-none"
+                    />
+                </div>
+                <p id="eq-error-msg" class="text-[11px] text-rose-400 font-semibold hidden">
+                    תבנית לא מזוהה. נסה לדוגמה: <span class="math-font">3A - 2B</span> או <span class="math-font">-1.5A + B</span>
+                </p>
+
+                <div class="flex flex-wrap gap-1" id="equation-chips">
+                    <button type="button" data-eq="A" class="eq-chip px-2 py-0.5 rounded text-[11px] font-bold math-font bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-600 transition">A</button>
+                    <button type="button" data-eq="2A" class="eq-chip px-2 py-0.5 rounded text-[11px] font-bold math-font bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-600 transition">2A</button>
+                    <button type="button" data-eq="A + B" class="eq-chip px-2 py-0.5 rounded text-[11px] font-bold math-font bg-indigo-600 text-white shadow-sm transition">A + B</button>
+                    <button type="button" data-eq="A - B" class="eq-chip px-2 py-0.5 rounded text-[11px] font-bold math-font bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition">A - B</button>
+                    <button type="button" data-eq="B - A" class="eq-chip px-2 py-0.5 rounded text-[11px] font-bold math-font bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition">B - A</button>
+                    <button type="button" data-eq="3A - 2B" class="eq-chip px-2 py-0.5 rounded text-[11px] font-bold math-font bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-600 transition">3A - 2B</button>
+                    <button type="button" data-eq="-1.5A + 2B" class="eq-chip px-2 py-0.5 rounded text-[11px] font-bold math-font bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition">-1.5A + 2B</button>
+                </div>
+            </div>
+
+            <!-- 2. Pedagogical Visual Aids (Clean Default -> Teacher adds features progressively) -->
+            <div class="bg-indigo-50/80 p-2.5 rounded-xl border border-indigo-100 space-y-2">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-xs font-bold text-indigo-950">עזרי הוראה ושיטת בנייה</span>
+                    <button type="button" id="btn-animate" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg shadow-sm transition flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                        </svg>
+                        <span>הנפש העתקת וקטור</span>
+                    </button>
+                </div>
+
+                <!-- Construction Method Buttons (Default: Clean / None) -->
+                <div class="grid grid-cols-3 gap-1">
+                    <button type="button" data-method="none" class="method-btn py-1.5 px-1.5 rounded-lg text-[11px] font-bold bg-indigo-600 text-white shadow-sm transition">
+                        ללא קווי עזר (נקי)
+                    </button>
+                    <button type="button" data-method="tip_to_tail" class="method-btn py-1.5 px-1.5 rounded-lg text-[11px] font-bold bg-white text-indigo-900 border border-indigo-200 hover:bg-indigo-100 transition">
+                        שיטת ראש-זנב
+                    </button>
+                    <button type="button" data-method="parallelogram" class="method-btn py-1.5 px-1.5 rounded-lg text-[11px] font-bold bg-white text-indigo-900 border border-indigo-200 hover:bg-indigo-100 transition">
+                        כלל המקבילית
+                    </button>
+                </div>
+
+                <!-- Tip-to-Tail Translation Controls (Slider + Ghost/Triangle options) -->
+                <div id="tip-to-tail-controls" class="hidden pt-1.5 border-t border-indigo-200/70 space-y-1.5 bg-white/80 p-2 rounded-lg border border-indigo-100">
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="font-bold text-indigo-950">העתקת וקטור B לקצה A (כולל היטלים):</span>
+                        <span id="anim-progress-label" class="math-font font-bold text-indigo-700">100%</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] text-slate-500 font-semibold">במקור (0,0)</span>
+                        <input type="range" id="slider-anim-progress" min="0" max="1" step="0.01" value="1" class="flex-1 h-1.5 bg-indigo-200 rounded-lg cursor-pointer">
+                        <span class="text-[10px] text-indigo-700 font-bold">בקצה A</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1 pt-0.5 text-[10px] font-semibold text-slate-700">
+                        <label class="flex items-center gap-1 cursor-pointer bg-indigo-50/60 px-1.5 py-1 rounded border border-indigo-100">
+                            <input type="checkbox" id="chk-ghost-b" class="rounded text-indigo-600 h-3 w-3">
+                            <span>השאר עותק עמום ב-(0,0)</span>
+                        </label>
+                        <label class="flex items-center gap-1 cursor-pointer bg-indigo-50/60 px-1.5 py-1 rounded border border-indigo-100">
+                            <input type="checkbox" id="chk-local-triangle" class="rounded text-indigo-600 h-3 w-3">
+                            <span>משולש רכיבים צמוד ל-B</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Subtraction Pedagogical Switch -->
+                <div id="subtraction-mode-box" class="hidden pt-1.5 border-t border-indigo-200/60">
+                    <label class="block text-[11px] font-semibold text-indigo-900 mb-1">דרך הצגת החיסור:</label>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button type="button" data-subview="add_negative" class="subview-btn py-1 px-1.5 rounded-lg text-[11px] font-bold bg-indigo-600 text-white shadow-sm transition">
+                            חיבור הנגדי <span class="math-font">cA + (-|d|B)</span>
+                        </button>
+                        <button type="button" data-subview="head_to_head" class="subview-btn py-1 px-1.5 rounded-lg text-[11px] font-bold bg-white text-indigo-900 border border-indigo-200 hover:bg-indigo-100 transition">
+                            חץ מראש לראש (הפרש)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progressive Checkboxes for Projections, Axis Arrows, Angles -->
+                <div class="space-y-1.5 pt-1.5 border-t border-indigo-200/60 text-xs font-semibold text-slate-700">
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <label class="flex items-center gap-1.5 cursor-pointer bg-white px-2 py-1.5 rounded-lg border border-indigo-100">
+                            <input type="checkbox" id="chk-components" class="rounded text-indigo-600 h-3.5 w-3.5">
+                            <span class="text-[11px]">קווי היטל מקווקווים</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer bg-white px-2 py-1.5 rounded-lg border border-indigo-100">
+                            <input type="checkbox" id="chk-axis-vectors" class="rounded text-indigo-600 h-3.5 w-3.5">
+                            <span class="text-[11px]">חצי רכיבים על הצירים</span>
+                        </label>
+                    </div>
+
+                    <div class="flex items-center justify-between bg-white px-2 py-1.5 rounded-lg border border-indigo-200">
+                        <span class="text-[11px] font-bold text-indigo-950">הצג רכיבים/זווית עבור:</span>
+                        <div class="flex items-center gap-2.5 math-font text-[11px]">
+                            <label class="flex items-center gap-1 cursor-pointer text-blue-700 font-bold">
+                                <input type="checkbox" id="chk-comp-a" checked class="rounded text-blue-600 h-3.5 w-3.5">
+                                <span>A/cA</span>
+                            </label>
+                            <label class="flex items-center gap-1 cursor-pointer text-orange-600 font-bold">
+                                <input type="checkbox" id="chk-comp-b" checked class="rounded text-orange-500 h-3.5 w-3.5">
+                                <span>B/dB</span>
+                            </label>
+                            <label class="flex items-center gap-1 cursor-pointer text-emerald-700 font-bold">
+                                <input type="checkbox" id="chk-comp-r" class="rounded text-emerald-600 h-3.5 w-3.5">
+                                <span>R</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-1">
+                        <label class="flex items-center gap-1 cursor-pointer bg-white px-2 py-1 rounded-lg border border-indigo-100">
+                            <input type="checkbox" id="chk-labels" checked class="rounded text-indigo-600 h-3.5 w-3.5">
+                            <span class="text-[11px]">תוויות ערכים</span>
+                        </label>
+                        <label class="flex items-center gap-1 cursor-pointer bg-white px-2 py-1 rounded-lg border border-indigo-100">
+                            <input type="checkbox" id="chk-angles" class="rounded text-indigo-600 h-3.5 w-3.5">
+                            <span class="text-[11px]">קשתות זוויות</span>
+                        </label>
+                        <div class="flex items-center justify-between bg-white px-2 py-1 rounded-lg border border-indigo-100">
+                            <span class="text-[10px] text-slate-500">גרירה:</span>
+                            <select id="select-snap" class="bg-transparent text-indigo-950 font-bold text-[11px] focus:outline-none cursor-pointer">
+                                <option value="0.5" selected>0.50</option>
+                                <option value="1">1.00</option>
+                                <option value="0.01">0.01</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Vector A Control Card (Blue) -->
+            <div id="vecA-card" class="bg-white p-2.5 rounded-xl border-2 border-blue-500/80 shadow-sm space-y-2 transition-opacity">
+                <div class="flex items-center justify-between gap-1">
+                    <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" id="card-chk-a" checked class="rounded text-blue-600 h-4 w-4">
+                        <span class="font-extrabold text-blue-900 text-sm">וקטור בסיס <span class="math-font vector-overbar">A</span> (כחול)</span>
+                    </label>
+                    <div class="text-[11px] font-bold bg-blue-50 text-blue-800 px-2 py-0.5 rounded math-font" id="vecA-summary">
+                        |A| = 5.00, θ = 36.87°
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-1.5 text-[11px]">
+                    <div>
+                        <label class="block text-slate-500 font-semibold mb-0.5 text-center">רכיב <span class="math-font">A_x</span></label>
+                        <input type="number" id="in-ax" step="0.1" value="4.00" class="w-full math-font font-bold bg-slate-50 border border-slate-300 rounded-lg px-1 py-1 text-center focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 font-semibold mb-0.5 text-center">רכיב <span class="math-font">A_y</span></label>
+                        <input type="number" id="in-ay" step="0.1" value="3.00" class="w-full math-font font-bold bg-slate-50 border border-slate-300 rounded-lg px-1 py-1 text-center focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 font-semibold mb-0.5 text-center">גודל <span class="math-font">|A|</span></label>
+                        <input type="number" id="in-amag" step="0.1" min="0" value="5.00" class="w-full math-font font-bold bg-slate-50 border border-slate-300 rounded-lg px-1 py-1 text-center focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 font-semibold mb-0.5 text-center">זווית <span class="math-font">θ_A°</span></label>
+                        <input type="number" id="in-aang" step="1" value="36.87" class="w-full math-font font-bold bg-slate-50 border border-slate-300 rounded-lg px-1 py-1 text-center focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Scalar c slider for Vector A -->
+                <div class="pt-1.5 border-t border-slate-100 space-y-1">
+                    <div class="flex items-center gap-1.5">
+                        <label class="text-[11px] font-bold text-slate-700 whitespace-nowrap">כפל בסקלר <span class="math-font text-blue-700">(c)</span>:</label>
+                        <input type="number" id="in-scalar-c" value="1.00" step="0.1" min="-10" max="10" class="w-16 math-font font-bold text-xs bg-blue-50 border border-blue-300 rounded-lg px-1 py-0.5 text-center text-blue-900">
+                        <input type="range" id="slider-scalar-c" min="-5" max="5" step="0.25" value="1" class="flex-1 h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+                        <button type="button" id="reset-scalar-c" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded font-bold math-font">c=1</button>
+                    </div>
+                    <div id="scaled-a-info" class="text-[11px] font-semibold text-blue-700 math-font bg-blue-50/70 px-2 py-0.5 rounded flex justify-between">
+                        <span>1·A = (4.00, 3.00)</span>
+                        <span>|cA| = 5.00, θ = 36.87°</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Vector B Control Card (Orange) -->
+            <div id="vecB-card" class="bg-white p-2.5 rounded-xl border-2 border-orange-500/80 shadow-sm space-y-2 transition-opacity">
+                <div class="flex items-center justify-between gap-1">
+                    <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" id="card-chk-b" checked class="rounded text-orange-500 h-4 w-4">
+                        <span class="font-extrabold text-orange-900 text-sm">וקטור בסיס <span class="math-font vector-overbar">B</span> (כתום)</span>
+                    </label>
+                    <div class="text-[11px] font-bold bg-orange-50 text-orange-800 px-2 py-0.5 rounded math-font" id="vecB-summary">
+                        |B| = 4.47, θ = 116.57°
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-1.5 text-[11px]">
+                    <div>
+                        <label class="block text-slate-500 font-semibold mb-0.5 text-center">רכיב <span class="math-font">B_x</span></label>
+                        <input type="number" id="in-bx" step="0.1" value="-2.00" class="w-full math-font font-bold bg-slate-50 border border-slate-300 rounded-lg px-1 py-1 text-center focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 font-semibold mb-0.5 text-center">רכיב <span class="math-font">B_y</span></label>
+                        <input type="number" id="in-by" step="0.1" value="4.00" class="w-full math-font font-bold bg-slate-50 border border-slate-300 rounded-lg px-1 py-1 text-center focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 font-semibold mb-0.5 text-center">גודל <span class="math-font">|B|</span></label>
+                        <input type="number" id="in-bmag" step="0.1" min="0" value="4.47" class="w-full math-font font-bold bg-slate-50 border border-slate-300 rounded-lg px-1 py-1 text-center focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 font-semibold mb-0.5 text-center">זווית <span class="math-font">θ_B°</span></label>
+                        <input type="number" id="in-bang" step="1" value="116.57" class="w-full math-font font-bold bg-slate-50 border border-slate-300 rounded-lg px-1 py-1 text-center focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Scalar d slider for Vector B -->
+                <div class="pt-1.5 border-t border-slate-100 space-y-1">
+                    <div class="flex items-center gap-1.5">
+                        <label class="text-[11px] font-bold text-slate-700 whitespace-nowrap">כפל בסקלר <span class="math-font text-orange-700">(d)</span>:</label>
+                        <input type="number" id="in-scalar-d" value="1.00" step="0.1" min="-10" max="10" class="w-16 math-font font-bold text-xs bg-orange-50 border border-orange-300 rounded-lg px-1 py-0.5 text-center text-orange-900">
+                        <input type="range" id="slider-scalar-d" min="-5" max="5" step="0.25" value="1" class="flex-1 h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+                        <button type="button" id="reset-scalar-d" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded font-bold math-font">d=1</button>
+                    </div>
+                    <div id="scaled-b-info" class="text-[11px] font-semibold text-orange-700 math-font bg-orange-50/70 px-2 py-0.5 rounded flex justify-between">
+                        <span>1·B = (-2.00, 4.00)</span>
+                        <span>|dB| = 4.47, θ = 116.57°</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Resultant Vector R Summary Card (Green) -->
+            <div id="resultant-card" class="bg-emerald-50/90 p-2.5 rounded-xl border-2 border-emerald-500 shadow-sm space-y-2 transition-opacity">
+                <div class="flex items-center justify-between gap-1">
+                    <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" id="card-chk-r" checked class="rounded text-emerald-600 h-4 w-4">
+                        <span class="font-extrabold text-emerald-950 text-sm">וקטור שקול <span class="math-font vector-overbar">R</span> (ירוק)</span>
+                    </label>
+                    <span class="text-[11px] font-bold bg-emerald-200/80 text-emerald-950 px-2 py-0.5 rounded math-font" id="res-coords">
+                        R = (2.00, 7.00)
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-3 gap-1.5 text-center">
+                    <div class="bg-white p-1.5 rounded-lg border border-emerald-200">
+                        <span class="block text-[10px] text-slate-500 font-semibold">גודל <span class="math-font">|R|</span></span>
+                        <span class="math-font font-extrabold text-emerald-700 text-xs" id="res-mag">7.28</span>
+                    </div>
+                    <div class="bg-white p-1.5 rounded-lg border border-emerald-200">
+                        <span class="block text-[10px] text-slate-500 font-semibold">זווית <span class="math-font">θ_R</span></span>
+                        <span class="math-font font-extrabold text-emerald-700 text-xs" id="res-angle">74.05°</span>
+                    </div>
+                    <div class="bg-white p-1.5 rounded-lg border border-emerald-200">
+                        <span class="block text-[10px] text-slate-500 font-semibold">זווית בין A ל-B</span>
+                        <span class="math-font font-extrabold text-slate-700 text-xs" id="between-angle">79.70°</span>
+                    </div>
+                </div>
+
+                <div id="step-by-step-box" class="bg-white/95 p-2 rounded-lg border border-emerald-200/80 text-[11px] space-y-0.5 math-font text-slate-700 overflow-x-auto">
+                </div>
+
+                <p id="pedagogical-note" class="text-[11px] text-emerald-950 bg-emerald-100/80 p-2 rounded-lg leading-relaxed font-medium">
+                </p>
+            </div>
+
+        </aside>
+
+        <!-- Left Side (in RTL): Interactive Coordinate Canvas -->
+        <main id="canvas-container" class="flex-1 relative bg-white flex items-center justify-center overflow-hidden min-w-0 min-h-[260px]">
+            <canvas id="vector-canvas" class="w-full h-full block cursor-crosshair"></canvas>
+
+            <!-- Floating Instruction Pill on Canvas -->
+            <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm pointer-events-none text-xs font-semibold text-slate-600 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+                <span>גרור את ראשי הווקטורים <b class="text-blue-600">A</b> ו-<b class="text-orange-600">B</b> על גבי הרשת</span>
+            </div>
+
+            <!-- Floating Zoom & Origin Controls on Canvas -->
+            <div class="absolute bottom-4 left-4 flex items-center gap-1 bg-white/95 backdrop-blur-sm p-1.5 rounded-xl border border-slate-200 shadow-md">
+                <button type="button" id="btn-zoom-in" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 font-bold text-sm transition" title="הגדל תצוגה">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                </button>
+                <span id="zoom-label" class="text-xs font-bold text-slate-600 px-1 math-font">100%</span>
+                <button type="button" id="btn-zoom-out" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 font-bold text-sm transition" title="הקטן תצוגה">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" />
+                    </svg>
+                </button>
+                <div class="h-4 w-px bg-slate-200 mx-0.5"></div>
+                <button type="button" id="btn-auto-fit" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold text-xs transition">
+                    התאם למסך
+                </button>
+                <button type="button" id="btn-center-origin" class="px-2.5 py-1 hover:bg-slate-100 rounded-lg text-slate-700 font-bold text-xs transition">
+                    מרכז (0,0)
+                </button>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            // --- Application State (Clean Default for Progressive Teaching) ---
+            const state = {
+                A: { x: 4.00, y: 3.00 },
+                B: { x: -2.00, y: 4.00 },
+                showVecA: true,
+                showVecB: true,
+                showResultant: true,
+                c: 1.00,
+                d: 1.00,
+                // Default construction method is 'none' so the canvas starts completely clean
+                method: 'none',
+                subView: 'add_negative',
+                snapStep: 0.5,
+                // Progressive teaching aids default to OFF until checked by the teacher
+                showComponents: false,
+                showAxisVectors: false,
+                compA: true,
+                compB: true,
+                compR: false,
+                showLabels: true,
+                showAngles: false,
+                // Viewport & Coordinate Grid
+                scale: 38,
+                zoomFactor: 1.0,
+                panOffset: { x: 0, y: 0 },
+                // Interaction
+                dragging: null,
+                dragStartMouse: { x: 0, y: 0 },
+                dragStartPan: { x: 0, y: 0 },
+                hoveredHandle: null,
+                // Animation & Tip-to-Tail Translation Options
+                animating: false,
+                animProgress: 1.0,
+                showGhostBAtOrigin: false,
+                showLocalTriangleB: false
+            };
+
+            const canvas = document.getElementById('vector-canvas');
+            const ctx = canvas.getContext('2d');
+
+            // --- Math & Formatting Helpers (Strict 2-Decimal Precision) ---
+            function roundTo(num, decimals) {
+                const d = decimals !== undefined ? decimals : 2;
+                const factor = Math.pow(10, d);
+                return Math.round((Number(num) + Number.EPSILON) * factor) / factor;
+            }
+
+            function fmt2(val) {
+                const r = roundTo(val, 2);
+                const clean = Object.is(r, -0) ? 0 : r;
+                return clean.toFixed(2);
+            }
+
+            function fmtScalarCompact(val) {
+                const r = roundTo(val, 2);
+                return Object.is(r, -0) ? '0' : Number(r.toFixed(2)).toString();
+            }
+
+            function getMagnitude(v) {
+                return Math.hypot(v.x, v.y);
+            }
+
+            function getAngleDeg(v) {
+                if (Math.abs(v.x) < 1e-9 && Math.abs(v.y) < 1e-9) return 0;
+                let deg = Math.atan2(v.y, v.x) * (180 / Math.PI);
+                if (deg < 0) deg += 360;
+                return deg;
+            }
+
+            function getAngleBetweenDeg(v1, v2) {
+                const m1 = getMagnitude(v1);
+                const m2 = getMagnitude(v2);
+                if (m1 < 1e-9 || m2 < 1e-9) return 0;
+                const dot = v1.x * v2.x + v1.y * v2.y;
+                const cosTheta = Math.max(-1, Math.min(1, dot / (m1 * m2)));
+                return Math.acos(cosTheta) * (180 / Math.PI);
+            }
+
+            // Compute effective vectors based on visibility and scalars c, d
+            function getEffectiveVectors() {
+                const effC = state.showVecA ? state.c : 0;
+                const effD = state.showVecB ? state.d : 0;
+                const cA = { x: state.A.x * effC, y: state.A.y * effC };
+                const dB = { x: state.B.x * effD, y: state.B.y * effD };
+                const R = { x: cA.x + dB.x, y: cA.y + dB.y };
+                return { effC, effD, cA, dB, R };
+            }
+
+            // View Mode Helpers ('single_a', 'single_b', 'two_no_r', 'full')
+            function applyViewMode(mode) {
+                if (mode === 'single_a') {
+                    state.showVecA = true;
+                    state.showVecB = false;
+                    state.showResultant = false;
+                    state.compA = true;
+                    state.compB = false;
+                    state.compR = false;
+                    if (Math.abs(state.c) < 1e-9) state.c = 1;
+                } else if (mode === 'single_b') {
+                    state.showVecA = false;
+                    state.showVecB = true;
+                    state.showResultant = false;
+                    state.compA = false;
+                    state.compB = true;
+                    state.compR = false;
+                    if (Math.abs(state.d) < 1e-9) state.d = 1;
+                } else if (mode === 'two_no_r') {
+                    state.showVecA = true;
+                    state.showVecB = true;
+                    state.showResultant = false;
+                    if (Math.abs(state.c) < 1e-9) state.c = 1;
+                    if (Math.abs(state.d) < 1e-9) state.d = 1;
+                } else if (mode === 'full') {
+                    state.showVecA = true;
+                    state.showVecB = true;
+                    state.showResultant = true;
+                    if (Math.abs(state.c) < 1e-9) state.c = 1;
+                    if (Math.abs(state.d) < 1e-9) state.d = 1;
+                }
+                document.getElementById('chk-comp-a').checked = state.compA;
+                document.getElementById('chk-comp-b').checked = state.compB;
+                document.getElementById('chk-comp-r').checked = state.compR;
+                updateUI();
+            }
+
+            function getActiveViewMode() {
+                if (state.showVecA && !state.showVecB && !state.showResultant) return 'single_a';
+                if (!state.showVecA && state.showVecB && !state.showResultant) return 'single_b';
+                if (state.showVecA && state.showVecB && !state.showResultant) return 'two_no_r';
+                if (state.showVecA && state.showVecB && state.showResultant) return 'full';
+                return 'custom';
+            }
+
+            // Parse free-form equation strings like "3A - 2B", "-1.5A + 0.5B", "2A", "B - A"
+            function parseVectorEquation(rawInput) {
+                if (!rawInput || typeof rawInput !== 'string') return { valid: false };
+                const s = rawInput.trim()
+                    .replace(/^[Rr]\s*=\s*/, '')
+                    .replace(/[−–—]/g, '-')
+                    .replace(/\s+/g, '')
+                    .replace(/\*/g, '')
+                    .toUpperCase();
+
+                if (s === '' || s === '0') {
+                    return { valid: true, c: 0, d: 0, hasATerm: false, hasBTerm: false };
+                }
+
+                const tokenRegex = /([+-]?(?:\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?|\.\d+)?)([AB])/g;
+                let matchedLength = 0;
+                let c = 0;
+                let d = 0;
+                let hasATerm = false;
+                let hasBTerm = false;
+                let match;
+
+                while ((match = tokenRegex.exec(s)) !== null) {
+                    matchedLength += match[0].length;
+                    const coeffStr = match[1];
+                    const vecName = match[2];
+
+                    let val = 1;
+                    if (coeffStr === '' || coeffStr === '+') {
+                        val = 1;
+                    } else if (coeffStr === '-') {
+                        val = -1;
+                    } else if (coeffStr.includes('/')) {
+                        const parts = coeffStr.split('/');
+                        const num = parseFloat(parts[0]);
+                        const den = parseFloat(parts[1]);
+                        if (isNaN(num) || isNaN(den) || den === 0) return { valid: false };
+                        val = num / den;
+                    } else {
+                        val = parseFloat(coeffStr);
+                        if (isNaN(val)) return { valid: false };
+                    }
+
+                    if (vecName === 'A') {
+                        c += val;
+                        hasATerm = true;
+                    }
+                    if (vecName === 'B') {
+                        d += val;
+                        hasBTerm = true;
+                    }
+                }
+
+                if (matchedLength !== s.length || matchedLength === 0) {
+                    return { valid: false };
+                }
+
+                return {
+                    valid: true,
+                    c: roundTo(c, 2),
+                    d: roundTo(d, 2),
+                    hasATerm,
+                    hasBTerm
+                };
+            }
+
+            function formatEquationFromScalars(c, d) {
+                if (Math.abs(c) < 1e-9 && Math.abs(d) < 1e-9) return '0';
+                const parts = [];
+                if (Math.abs(c) >= 1e-9) {
+                    const cStr = c === 1 ? 'A' : (c === -1 ? '-A' : `${fmtScalarCompact(c)}A`);
+                    parts.push(cStr);
+                }
+                if (Math.abs(d) >= 1e-9) {
+                    const absD = Math.abs(d);
+                    const dMagStr = absD === 1 ? 'B' : `${fmtScalarCompact(absD)}B`;
+                    if (parts.length === 0) {
+                        parts.push(d < 0 ? `-${dMagStr}` : dMagStr);
+                    } else {
+                        parts.push(d < 0 ? `- ${dMagStr}` : `+ ${dMagStr}`);
+                    }
+                }
+                return parts.join(' ');
+            }
+
+            // --- Coordinate Transformations ---
+            function getOriginPixels() {
+                return {
+                    x: canvas.width / 2 + state.panOffset.x,
+                    y: canvas.height / 2 + state.panOffset.y
+                };
+            }
+
+            function getPixelsPerUnit() {
+                return state.scale * state.zoomFactor;
+            }
+
+            function worldToScreen(wx, wy) {
+                const origin = getOriginPixels();
+                const ppu = getPixelsPerUnit();
+                return {
+                    x: origin.x + wx * ppu,
+                    y: origin.y - wy * ppu
+                };
+            }
+
+            function screenToWorld(sx, sy) {
+                const origin = getOriginPixels();
+                const ppu = getPixelsPerUnit();
+                return {
+                    x: (sx - origin.x) / ppu,
+                    y: (origin.y - sy) / ppu
+                };
+            }
+
+            // Ensure Canvas always has valid non-zero dimensions
+            function resizeCanvas() {
+                const container = document.getElementById('canvas-container');
+                const rect = container ? container.getBoundingClientRect() : { width: 800, height: 600 };
+                const w = rect.width > 50 ? Math.floor(rect.width) : Math.max(320, window.innerWidth - 380);
+                const h = rect.height > 50 ? Math.floor(rect.height) : Math.max(300, window.innerHeight - 60);
+                canvas.width = w;
+                canvas.height = h;
+                const minDim = Math.min(w, h);
+                state.scale = Math.max(22, minDim / 18);
+                render();
+            }
+
+            // --- Canvas Drawing Functions ---
+            function getNiceTickStep(ppu) {
+                const targetPx = 48;
+                const rawStep = targetPx / ppu;
+                const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+                const residual = rawStep / mag;
+                if (residual > 5) return 10 * mag;
+                if (residual > 2) return 5 * mag;
+                if (residual > 1) return 2 * mag;
+                return Math.max(1, mag);
+            }
+
+            function drawGrid() {
+                const origin = getOriginPixels();
+                const ppu = getPixelsPerUnit();
+                const w = canvas.width;
+                const h = canvas.height;
+                const unitStep = getNiceTickStep(ppu);
+                const majorPx = ppu * unitStep;
+                const minorPx = majorPx / 2;
+
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, w, h);
+
+                // Minor grid lines
+                if (minorPx >= 16) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#f1f5f9';
+                    ctx.lineWidth = 1;
+                    for (let x = ((origin.x % minorPx) + minorPx) % minorPx; x < w; x += minorPx) {
+                        ctx.moveTo(x, 0); ctx.lineTo(x, h);
+                    }
+                    for (let y = ((origin.y % minorPx) + minorPx) % minorPx; y < h; y += minorPx) {
+                        ctx.moveTo(0, y); ctx.lineTo(w, y);
+                    }
+                    ctx.stroke();
+                }
+
+                // Major grid lines
+                ctx.beginPath();
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1;
+                for (let x = ((origin.x % majorPx) + majorPx) % majorPx; x < w; x += majorPx) {
+                    ctx.moveTo(x, 0); ctx.lineTo(x, h);
+                }
+                for (let y = ((origin.y % majorPx) + majorPx) % majorPx; y < h; y += majorPx) {
+                    ctx.moveTo(0, y); ctx.lineTo(w, y);
+                }
+                ctx.stroke();
+
+                // Main X & Y Axes
+                ctx.beginPath();
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 2;
+                ctx.moveTo(0, origin.y); ctx.lineTo(w, origin.y);
+                ctx.moveTo(origin.x, 0); ctx.lineTo(origin.x, h);
+                ctx.stroke();
+
+                // Tick Numbers (LTR so minus signs are on the left)
+                ctx.save();
+                ctx.direction = 'ltr';
+                ctx.fillStyle = '#475569';
+                ctx.font = '600 11px "JetBrains Mono", monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+
+                const minXIdx = Math.floor(-origin.x / majorPx);
+                const maxXIdx = Math.ceil((w - origin.x) / majorPx);
+                for (let i = minXIdx; i <= maxXIdx; i++) {
+                    if (i === 0) continue;
+                    const val = i * unitStep;
+                    const px = origin.x + val * ppu;
+                    ctx.beginPath();
+                    ctx.moveTo(px, origin.y - 4);
+                    ctx.lineTo(px, origin.y + 4);
+                    ctx.stroke();
+                    ctx.fillText(val.toString(), px, origin.y + 7);
+                }
+
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                const minYIdx = Math.floor((origin.y - h) / majorPx);
+                const maxYIdx = Math.ceil(origin.y / majorPx);
+                for (let j = minYIdx; j <= maxYIdx; j++) {
+                    if (j === 0) continue;
+                    const val = j * unitStep;
+                    const py = origin.y - val * ppu;
+                    ctx.beginPath();
+                    ctx.moveTo(origin.x - 4, py);
+                    ctx.lineTo(origin.x + 4, py);
+                    ctx.stroke();
+                    ctx.fillText(val.toString(), origin.x - 8, py);
+                }
+
+                // Origin & Axis Titles
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 13px "JetBrains Mono", monospace';
+                ctx.fillText('0', origin.x - 7, origin.y + 14);
+                ctx.fillText('X', w - 12, origin.y - 14);
+                ctx.fillText('Y', origin.x + 18, 16);
+                ctx.restore();
+            }
+
+            function drawPillBadge(x, y, text, borderColor, textColor, alpha, fontSize) {
+                if (!state.showLabels || !text) return;
+                const fSize = fontSize || 11;
+                ctx.save();
+                ctx.direction = 'ltr';
+                ctx.globalAlpha = alpha !== undefined ? alpha : 1.0;
+                ctx.font = `700 ${fSize}px "JetBrains Mono", "Assistant", sans-serif`;
+                const metrics = ctx.measureText(text);
+                const padX = 7;
+                const boxW = metrics.width + padX * 2;
+                const boxH = fSize + 9;
+                const bx = x - boxW / 2;
+                const by = y - boxH / 2;
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 1.4;
+
+                ctx.beginPath();
+                if (ctx.roundRect) {
+                    ctx.roundRect(bx, by, boxW, boxH, 6);
+                } else {
+                    ctx.rect(bx, by, boxW, boxH);
+                }
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = textColor;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, x, y + 0.5);
+                ctx.restore();
+            }
+
+            function drawVectorArrow(fromWorld, toWorld, options) {
+                const opts = options || {};
+                const color = opts.color || '#2563eb';
+                const width = opts.width || 3.5;
+                const dashed = Boolean(opts.dashed);
+                const label = opts.label || '';
+                const showCoords = Boolean(opts.showCoords);
+                const showAngleInLabel = Boolean(opts.showAngleInLabel);
+                const isHandle = Boolean(opts.isHandle);
+                const isHovered = Boolean(opts.isHovered);
+                const alpha = opts.alpha !== undefined ? opts.alpha : 1.0;
+                const labelOffset = opts.labelOffset || { x: 0, y: -16 };
+
+                const start = worldToScreen(fromWorld.x, fromWorld.y);
+                const end = worldToScreen(toWorld.x, toWorld.y);
+                const dx = end.x - start.x;
+                const dy = end.y - start.y;
+                const len = Math.hypot(dx, dy);
+
+                ctx.save();
+                ctx.globalAlpha = alpha;
+
+                if (len < 2) {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(start.x, start.y, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                    return;
+                }
+
+                const angle = Math.atan2(dy, dx);
+                const headLen = Math.min(15, Math.max(9, len * 0.25));
+
+                // Shaft
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = isHovered ? width + 1.2 : width;
+                ctx.lineCap = 'round';
+                if (dashed) {
+                    ctx.setLineDash([7, 5]);
+                }
+                const shaftEndX = end.x - Math.cos(angle) * (headLen * 0.68);
+                const shaftEndY = end.y - Math.sin(angle) * (headLen * 0.68);
+                ctx.moveTo(start.x, start.y);
+                ctx.lineTo(shaftEndX, shaftEndY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Arrowhead
+                ctx.beginPath();
+                ctx.fillStyle = color;
+                ctx.moveTo(end.x, end.y);
+                ctx.lineTo(
+                    end.x - headLen * Math.cos(angle - Math.PI / 6.5),
+                    end.y - headLen * Math.sin(angle - Math.PI / 6.5)
+                );
+                ctx.lineTo(
+                    end.x - headLen * 0.75 * Math.cos(angle),
+                    end.y - headLen * 0.75 * Math.sin(angle)
+                );
+                ctx.lineTo(
+                    end.x - headLen * Math.cos(angle + Math.PI / 6.5),
+                    end.y - headLen * Math.sin(angle + Math.PI / 6.5)
+                );
+                ctx.closePath();
+                ctx.fill();
+
+                // Interactive Handle Ring
+                if (isHandle) {
+                    ctx.beginPath();
+                    ctx.arc(end.x, end.y, isHovered ? 11 : 8, 0, Math.PI * 2);
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1.6;
+                    ctx.globalAlpha = isHovered ? 0.85 : 0.45;
+                    ctx.stroke();
+                    ctx.globalAlpha = alpha;
+                }
+
+                // Vector Label Pill near Tip/Midpoint
+                if (label && state.showLabels) {
+                    const vx = toWorld.x - fromWorld.x;
+                    const vy = toWorld.y - fromWorld.y;
+                    let text = label;
+                    if (showCoords) {
+                        text += ` (${fmt2(vx)}, ${fmt2(vy)})`;
+                    }
+                    if (showAngleInLabel) {
+                        text += ` ∠${fmt2(getAngleDeg({ x: vx, y: vy }))}°`;
+                    }
+                    const midX = (start.x + end.x) / 2 + labelOffset.x;
+                    const midY = (start.y + end.y) / 2 + labelOffset.y;
+                    drawPillBadge(midX, midY, text, color, color, alpha, 11);
+                }
+
+                ctx.restore();
+            }
+
+            function drawAxisArrowWithBadge(x1, y1, x2, y2, color, labelText, orientation, badgeOffset) {
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const len = Math.hypot(dx, dy);
+                if (len < 5) return;
+
+                const angle = Math.atan2(dy, dx);
+                const headLen = Math.min(12, Math.max(7, len * 0.25));
+
+                ctx.save();
+                ctx.strokeStyle = color;
+                ctx.fillStyle = color;
+                ctx.lineWidth = 3.6;
+                ctx.lineCap = 'round';
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2 - Math.cos(angle) * (headLen * 0.65), y2 - Math.sin(angle) * (headLen * 0.65));
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(x2, y2);
+                ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6.2), y2 - headLen * Math.sin(angle - Math.PI / 6.2));
+                ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6.2), y2 - headLen * Math.sin(angle + Math.PI / 6.2));
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+
+                if (state.showLabels && len > 18) {
+                    const mx = (x1 + x2) / 2 + (orientation === 'vertical' ? badgeOffset : 0);
+                    const my = (y1 + y2) / 2 + (orientation === 'horizontal' ? badgeOffset : 0);
+                    drawPillBadge(mx, my, labelText, color, color, 0.96, 10);
+                }
+            }
+
+            // Supports both standard vectors from (0,0) AND translated vectors starting at baseWorld = (x0, y0)
+            function drawComponentRepresentation(vec, color, symbolName, trackOffsetPx, baseWorld, showLocalTriangle) {
+                if (Math.abs(vec.x) < 1e-4 && Math.abs(vec.y) < 1e-4) return;
+                const base = baseWorld || { x: 0, y: 0 };
+                const isTranslated = Math.hypot(base.x, base.y) > 1e-4;
+
+                const startW = { x: base.x, y: base.y };
+                const endW = { x: base.x + vec.x, y: base.y + vec.y };
+
+                const origin = worldToScreen(0, 0);
+                const startScr = worldToScreen(startW.x, startW.y);
+                const tip = worldToScreen(endW.x, endW.y);
+
+                const projStartX = worldToScreen(startW.x, 0);
+                const projStartY = worldToScreen(0, startW.y);
+                const projEndX = worldToScreen(endW.x, 0);
+                const projEndY = worldToScreen(0, endW.y);
+
+                // 0. Optional Local Component Triangle right under the translated vector (Δx, Δy)
+                if (showLocalTriangle && isTranslated) {
+                    const cornerW = { x: endW.x, y: startW.y };
+                    const cornerScr = worldToScreen(cornerW.x, cornerW.y);
+                    ctx.save();
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2.0;
+                    ctx.setLineDash([5, 4]);
+                    ctx.globalAlpha = 0.85;
+                    ctx.beginPath();
+                    ctx.moveTo(startScr.x, startScr.y);
+                    ctx.lineTo(cornerScr.x, cornerScr.y);
+                    ctx.lineTo(tip.x, tip.y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    // 90° Right-Angle Marker at local triangle corner
+                    const sq = 7;
+                    if (Math.abs(cornerScr.x - startScr.x) > 14 && Math.abs(tip.y - cornerScr.y) > 14) {
+                        const dirX = cornerScr.x > startScr.x ? -1 : 1;
+                        const dirY = tip.y > cornerScr.y ? 1 : -1;
+                        ctx.beginPath();
+                        ctx.lineWidth = 1.4;
+                        ctx.moveTo(cornerScr.x + dirX * sq, cornerScr.y);
+                        ctx.lineTo(cornerScr.x + dirX * sq, cornerScr.y + dirY * sq);
+                        ctx.lineTo(cornerScr.x, cornerScr.y + dirY * sq);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+
+                    if (state.showLabels) {
+                        if (Math.abs(cornerScr.x - startScr.x) > 24) {
+                            drawPillBadge((startScr.x + cornerScr.x) / 2, cornerScr.y + (vec.y >= 0 ? 14 : -14), `${symbolName}x = ${fmt2(vec.x)}`, color, color, 0.92, 10);
+                        }
+                        if (Math.abs(tip.y - cornerScr.y) > 24) {
+                            drawPillBadge(cornerScr.x + (vec.x >= 0 ? 38 : -38), (cornerScr.y + tip.y) / 2, `${symbolName}y = ${fmt2(vec.y)}`, color, color, 0.92, 10);
+                        }
+                    }
+                }
+
+                // 1. Bold Dashed Projection Lines to X & Y Axes (From both tail & tip when translated!)
+                if (state.showComponents) {
+                    ctx.save();
+
+                    // If translated (e.g. Tip-to-Tail), also drop dashed reference lines from the translated tail to the axes
+                    if (isTranslated) {
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+                        ctx.lineWidth = 3.5;
+                        ctx.beginPath();
+                        ctx.moveTo(startScr.x, startScr.y);
+                        ctx.lineTo(projStartX.x, projStartX.y);
+                        ctx.moveTo(startScr.x, startScr.y);
+                        ctx.lineTo(projStartY.x, projStartY.y);
+                        ctx.stroke();
+
+                        ctx.strokeStyle = color;
+                        ctx.lineWidth = 1.8;
+                        ctx.setLineDash([4, 4]);
+                        ctx.globalAlpha = 0.65;
+                        ctx.beginPath();
+                        ctx.moveTo(startScr.x, startScr.y);
+                        ctx.lineTo(projStartX.x, projStartX.y);
+                        ctx.moveTo(startScr.x, startScr.y);
+                        ctx.lineTo(projStartY.x, projStartY.y);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        // Small anchor dots at tail projection points (startX, 0) and (0, startY)
+                        [projStartX, projStartY].forEach(pt => {
+                            ctx.beginPath();
+                            ctx.arc(pt.x, pt.y, 3.2, 0, Math.PI * 2);
+                            ctx.fillStyle = color;
+                            ctx.fill();
+                        });
+                    }
+
+                    // Main projection lines from the tip to X and Y axes
+                    ctx.globalAlpha = 1.0;
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+                    ctx.lineWidth = 4.5;
+                    ctx.beginPath();
+                    ctx.moveTo(tip.x, tip.y);
+                    ctx.lineTo(projEndX.x, projEndX.y);
+                    ctx.moveTo(tip.x, tip.y);
+                    ctx.lineTo(projEndY.x, projEndY.y);
+                    ctx.stroke();
+
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2.6;
+                    ctx.setLineDash([7, 5]);
+                    ctx.globalAlpha = 0.92;
+                    ctx.beginPath();
+                    ctx.moveTo(tip.x, tip.y);
+                    ctx.lineTo(projEndX.x, projEndX.y);
+                    ctx.moveTo(tip.x, tip.y);
+                    ctx.lineTo(projEndY.x, projEndY.y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    // 90° Right-Angle Markers on Axes at (endX, 0) and (0, endY)
+                    const sq = 8;
+                    if (Math.abs(tip.x - origin.x) > 16 && Math.abs(tip.y - origin.y) > 16) {
+                        const dirX = tip.x > origin.x ? -1 : 1;
+                        const dirY = tip.y > origin.y ? -1 : 1;
+                        ctx.lineWidth = 1.5;
+                        ctx.globalAlpha = 0.8;
+
+                        ctx.beginPath();
+                        ctx.moveTo(projEndX.x + dirX * sq, projEndX.y);
+                        ctx.lineTo(projEndX.x + dirX * sq, projEndX.y - dirY * sq);
+                        ctx.lineTo(projEndX.x, projEndX.y - dirY * sq);
+                        ctx.stroke();
+
+                        ctx.beginPath();
+                        ctx.moveTo(projEndY.x, projEndY.y + dirY * sq);
+                        ctx.lineTo(projEndY.x - dirX * sq, projEndY.y + dirY * sq);
+                        ctx.lineTo(projEndY.x - dirX * sq, projEndY.y);
+                        ctx.stroke();
+                    }
+
+                    // Anchor Rings at (endX, 0) and (0, endY)
+                    ctx.globalAlpha = 1.0;
+                    [projEndX, projEndY].forEach(pt => {
+                        ctx.beginPath();
+                        ctx.arc(pt.x, pt.y, 4.2, 0, Math.PI * 2);
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fill();
+                        ctx.lineWidth = 2.2;
+                        ctx.strokeStyle = color;
+                        ctx.stroke();
+                    });
+                    ctx.restore();
+                }
+
+                // 2. Component Vectors Drawn Along the X & Y Axes (From projStart to projEnd!)
+                if (state.showAxisVectors) {
+                    const yTrack = origin.y + trackOffsetPx;
+                    const xTrack = origin.x + trackOffsetPx;
+
+                    if (Math.abs(projEndX.x - projStartX.x) > 8) {
+                        drawAxisArrowWithBadge(
+                            projStartX.x, yTrack,
+                            projEndX.x, yTrack,
+                            color,
+                            `${symbolName}x = ${fmt2(vec.x)}`,
+                            'horizontal',
+                            trackOffsetPx >= 0 ? 18 : -18
+                        );
+                    }
+
+                    if (Math.abs(projEndY.y - projStartY.y) > 8) {
+                        drawAxisArrowWithBadge(
+                            xTrack, projStartY.y,
+                            xTrack, projEndY.y,
+                            color,
+                            `${symbolName}y = ${fmt2(vec.y)}`,
+                            'vertical',
+                            endW.x >= 0 ? -46 : 46
+                        );
+                    }
+                }
+            }
+
+            function drawAngleArc(vec, color, radiusPx, baseWorld) {
+                if (!state.showAngles) return;
+                const mag = getMagnitude(vec);
+                if (mag < 0.35) return;
+                const base = baseWorld || { x: 0, y: 0 };
+                const origin = worldToScreen(base.x, base.y);
+                const deg = getAngleDeg(vec);
+                const endRad = -deg * (Math.PI / 180);
+
+                ctx.save();
+                ctx.direction = 'ltr';
+
+                // If angle is drawn at a translated tail, draw a faint horizontal +X reference line
+                if (Math.hypot(base.x, base.y) > 1e-4) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = color;
+                    ctx.globalAlpha = 0.45;
+                    ctx.lineWidth = 1.3;
+                    ctx.setLineDash([4, 3]);
+                    ctx.moveTo(origin.x, origin.y);
+                    ctx.lineTo(origin.x + radiusPx + 14, origin.y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.12;
+                ctx.moveTo(origin.x, origin.y);
+                ctx.arc(origin.x, origin.y, radiusPx, 0, endRad, true);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.globalAlpha = 0.85;
+                ctx.lineWidth = 1.6;
+                ctx.beginPath();
+                ctx.arc(origin.x, origin.y, radiusPx, 0, endRad, true);
+                ctx.stroke();
+
+                const midRad = endRad / 2;
+                const tx = origin.x + (radiusPx + 16) * Math.cos(midRad);
+                const ty = origin.y + (radiusPx + 16) * Math.sin(midRad);
+                ctx.font = '700 10.5px "JetBrains Mono", monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const txt = `${fmt2(deg)}°`;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.92)';
+                ctx.lineWidth = 3.5;
+                ctx.strokeText(txt, tx, ty);
+                ctx.fillText(txt, tx, ty);
+                ctx.restore();
+            }
+
+            // Helper to compute the current base (tail) of Vector B in world coordinates
+            function getTranslatedBaseForB() {
+                const { effC, effD, cA } = getEffectiveVectors();
+                const hasA = state.showVecA && Math.abs(effC) >= 1e-9;
+                const hasB = state.showVecB && Math.abs(effD) >= 1e-9;
+                const isSubtraction = state.showResultant && hasA && hasB && (effC * effD < 0);
+                const isTipToTailActive = state.method === 'tip_to_tail' && hasA && hasB && !(isSubtraction && state.subView === 'head_to_head');
+
+                if (isTipToTailActive) {
+                    const t = state.animProgress;
+                    return {
+                        isTipToTail: true,
+                        base: { x: cA.x * t, y: cA.y * t }
+                    };
+                }
+                return {
+                    isTipToTail: false,
+                    base: { x: 0, y: 0 }
+                };
+            }
+
+            // --- Main Render Loop ---
+            function render() {
+                if (!canvas.width || !canvas.height) return;
+                drawGrid();
+
+                const origin = { x: 0, y: 0 };
+                const { effC, effD, cA, dB, R } = getEffectiveVectors();
+                const t = state.animProgress;
+
+                const hasA = state.showVecA && Math.abs(effC) >= 1e-9;
+                const hasB = state.showVecB && Math.abs(effD) >= 1e-9;
+                const isBothActive = hasA && hasB;
+                const isSubtraction = state.showResultant && isBothActive && (effC * effD < 0);
+
+                // Check if Tip-to-Tail mode is active so B and its projections move to the tip of A
+                const bTrans = getTranslatedBaseForB();
+                const isTipToTailActive = bTrans.isTipToTail;
+                const baseB = bTrans.base;
+
+                // 1. Dashed Projections & On-Axis Component Arrows
+                if (state.showComponents || state.showAxisVectors || (isTipToTailActive && state.showLocalTriangleB)) {
+                    if (state.compA && state.showVecA) {
+                        const useScaledA = hasA && Math.abs(effC - 1) > 1e-9;
+                        const vecAForComp = useScaledA ? cA : state.A;
+                        const symA = useScaledA ? 'cA_' : 'A_';
+                        // In tip-to-tail mode, put A_x and B_x on the same track (-4px) so they connect tip-to-tail on the axes!
+                        const trackA = isTipToTailActive ? -4 : -5;
+                        drawComponentRepresentation(vecAForComp, '#2563eb', symA, trackA, origin, false);
+                    }
+                    if (state.compB && state.showVecB) {
+                        const useScaledB = (hasB && Math.abs(effD - 1) > 1e-9) || isTipToTailActive;
+                        const vecBForComp = useScaledB ? dB : state.B;
+                        const symB = (hasB && Math.abs(effD - 1) > 1e-9) ? 'dB_' : 'B_';
+                        const colorB = effD < 0 ? '#e11d48' : '#ea580c';
+                        // When translated in tip-to-tail mode, B's projections start at baseB = t * cA!
+                        const trackB = isTipToTailActive ? -4 : 5;
+                        drawComponentRepresentation(
+                            vecBForComp,
+                            colorB,
+                            symB,
+                            trackB,
+                            baseB,
+                            isTipToTailActive && state.showLocalTriangleB
+                        );
+                    }
+                    if (state.compR && state.showResultant && (hasA || hasB)) {
+                        const trackR = isTipToTailActive ? 6 : 0;
+                        drawComponentRepresentation(R, '#059669', 'R_', trackR, origin, false);
+                    }
+                }
+
+                // 2. Angle Arcs
+                if (state.showAngles) {
+                    if (state.compA && state.showVecA) drawAngleArc(state.A, '#2563eb', 34, origin);
+                    if (state.compB && state.showVecB) {
+                        const vecBForAng = isTipToTailActive ? dB : state.B;
+                        drawAngleArc(vecBForAng, effD < 0 ? '#e11d48' : '#ea580c', isTipToTailActive ? 38 : 50, baseB);
+                    }
+                    if (state.compR && state.showResultant && (hasA || hasB)) {
+                        drawAngleArc(R, '#059669', 64, origin);
+                    }
+                }
+
+                // 3. Scaled Vectors cA and dB
+                const cLabel = effC === 1 ? 'A' : (effC === -1 ? '-A' : `${fmtScalarCompact(effC)}A`);
+                const dLabel = effD === 1 ? 'B' : (effD === -1 ? '-B' : `${fmtScalarCompact(effD)}B`);
+
+                if (hasA && Math.abs(effC - 1) > 1e-9) {
+                    drawVectorArrow(origin, cA, {
+                        color: '#1d4ed8',
+                        width: 3.0,
+                        dashed: true,
+                        label: cLabel,
+                        showCoords: true,
+                        alpha: 0.85,
+                        labelOffset: { x: 0, y: 18 }
+                    });
+                }
+
+                if (!isTipToTailActive && hasB && Math.abs(effD - 1) > 1e-9 && (!isSubtraction || state.subView === 'add_negative')) {
+                    drawVectorArrow(origin, dB, {
+                        color: effD < 0 ? '#e11d48' : '#c2410c',
+                        width: 3.0,
+                        dashed: true,
+                        label: dLabel,
+                        showCoords: true,
+                        alpha: 0.85,
+                        labelOffset: { x: 0, y: 18 }
+                    });
+                }
+
+                // 4. Resultant Vector R & Geometric Construction (Tip-to-Tail / Parallelogram)
+                if (state.showResultant && (hasA || hasB)) {
+                    if (isBothActive) {
+                        if (isSubtraction && state.subView === 'head_to_head') {
+                            const posVec = effC > 0 ? cA : dB;
+                            const negVecFlipped = effC < 0 ? { x: -cA.x, y: -cA.y } : { x: -dB.x, y: -dB.y };
+
+                            if (state.method !== 'none') {
+                                drawVectorArrow(negVecFlipped, posVec, {
+                                    color: '#059669',
+                                    width: 2.8,
+                                    dashed: true,
+                                    label: 'וקטור הפרש',
+                                    showCoords: false,
+                                    alpha: 0.85,
+                                    labelOffset: { x: 0, y: -16 }
+                                });
+                            }
+
+                            const slideStart = { x: negVecFlipped.x * (1 - t), y: negVecFlipped.y * (1 - t) };
+                            const slideEnd = { x: slideStart.x + R.x, y: slideStart.y + R.y };
+                            drawVectorArrow(slideStart, slideEnd, {
+                                color: '#059669',
+                                width: 4.4,
+                                label: 'R',
+                                showCoords: true,
+                                showAngleInLabel: true,
+                                labelOffset: { x: 0, y: -18 }
+                            });
+                        } else {
+                            if (state.method === 'parallelogram') {
+                                drawVectorArrow(cA, R, {
+                                    color: effD < 0 ? '#e11d48' : '#ea580c',
+                                    width: 2.2,
+                                    dashed: true,
+                                    label: '',
+                                    alpha: 0.65
+                                });
+                                drawVectorArrow(dB, R, {
+                                    color: '#2563eb',
+                                    width: 2.2,
+                                    dashed: true,
+                                    label: '',
+                                    alpha: 0.65
+                                });
+                            }
+
+                            drawVectorArrow(origin, R, {
+                                color: '#059669',
+                                width: 4.5,
+                                label: 'R',
+                                showCoords: true,
+                                showAngleInLabel: true,
+                                labelOffset: { x: 0, y: -18 }
+                            });
+                        }
+                    } else {
+                        drawVectorArrow(origin, R, {
+                            color: '#059669',
+                            width: 4.5,
+                            label: 'R',
+                            showCoords: true,
+                            showAngleInLabel: true,
+                            labelOffset: { x: 0, y: -18 }
+                        });
+                    }
+                }
+
+                // 5. Primary Vectors A and B on top
+                if (state.showVecA) {
+                    drawVectorArrow(origin, state.A, {
+                        color: '#2563eb',
+                        width: 3.8,
+                        label: 'A',
+                        showCoords: true,
+                        isHandle: true,
+                        isHovered: state.hoveredHandle === 'A' || state.dragging === 'A',
+                        labelOffset: { x: 16, y: 14 }
+                    });
+                }
+
+                if (state.showVecB) {
+                    if (isTipToTailActive) {
+                        // Optional faint ghost of B at origin (0,0) if checked
+                        if (state.showGhostBAtOrigin) {
+                            drawVectorArrow(origin, dB, {
+                                color: '#ea580c',
+                                width: 2.2,
+                                dashed: true,
+                                label: `${dLabel} (במקור)`,
+                                showCoords: false,
+                                isHandle: true,
+                                isHovered: state.hoveredHandle === 'B_origin',
+                                alpha: 0.35,
+                                labelOffset: { x: -16, y: -12 }
+                            });
+                        }
+
+                        // Translated Vector B (or dB) starting at baseB = t * cA!
+                        const translatedTipB = { x: baseB.x + dB.x, y: baseB.y + dB.y };
+                        drawVectorArrow(baseB, translatedTipB, {
+                            color: effD < 0 ? '#e11d48' : '#ea580c',
+                            width: 3.8,
+                            dashed: false,
+                            label: dLabel,
+                            showCoords: true,
+                            isHandle: true,
+                            isHovered: state.hoveredHandle === 'B' || state.dragging === 'B',
+                            labelOffset: { x: 18, y: -14 }
+                        });
+                    } else {
+                        drawVectorArrow(origin, state.B, {
+                            color: '#ea580c',
+                            width: 3.8,
+                            label: 'B',
+                            showCoords: true,
+                            isHandle: true,
+                            isHovered: state.hoveredHandle === 'B' || state.dragging === 'B',
+                            labelOffset: { x: -16, y: -14 }
+                        });
+                    }
+                }
+            }
+
+            // --- Synchronize All UI Controls ---
+            function setEquationValidStyle(isValid) {
+                const badge = document.getElementById('eq-status-badge');
+                const err = document.getElementById('eq-error-msg');
+                const input = document.getElementById('equation-input');
+                if (isValid) {
+                    badge.textContent = 'משוואה תקינה ✓';
+                    badge.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                    err.classList.add('hidden');
+                    input.classList.remove('border-rose-500');
+                    input.classList.add('border-indigo-500/70');
+                } else {
+                    badge.textContent = 'שגיאת תחביר ✕';
+                    badge.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30';
+                    err.classList.remove('hidden');
+                    input.classList.remove('border-indigo-500/70');
+                    input.classList.add('border-rose-500');
+                }
+            }
+
+            function updateUI(skipEquationInputUpdate) {
+                const { effC, effD, cA, dB, R } = getEffectiveVectors();
+
+                // Sync visibility checkboxes & card dim states
+                document.getElementById('chk-vis-a').checked = state.showVecA;
+                document.getElementById('chk-vis-b').checked = state.showVecB;
+                document.getElementById('chk-vis-r').checked = state.showResultant;
+                document.getElementById('card-chk-a').checked = state.showVecA;
+                document.getElementById('card-chk-b').checked = state.showVecB;
+                document.getElementById('card-chk-r').checked = state.showResultant;
+
+                document.getElementById('vecA-card').classList.toggle('opacity-50', !state.showVecA);
+                document.getElementById('vecB-card').classList.toggle('opacity-50', !state.showVecB);
+                document.getElementById('resultant-card').classList.toggle('opacity-50', !state.showResultant);
+
+                // View mode buttons active state
+                const activeMode = getActiveViewMode();
+                document.querySelectorAll('.vmode-btn').forEach(btn => {
+                    const isAct = btn.dataset.vmode === activeMode;
+                    btn.className = isAct
+                        ? 'vmode-btn py-1.5 px-2 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow-sm border border-indigo-400 transition'
+                        : 'vmode-btn py-1.5 px-2 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition';
+                });
+
+                // Construction method buttons active state
+                document.querySelectorAll('.method-btn').forEach(btn => {
+                    const isAct = btn.dataset.method === state.method;
+                    btn.className = isAct
+                        ? 'method-btn py-1.5 px-1.5 rounded-lg text-[11px] font-bold bg-indigo-600 text-white shadow-sm transition'
+                        : 'method-btn py-1.5 px-1.5 rounded-lg text-[11px] font-bold bg-white text-indigo-900 border border-indigo-200 hover:bg-indigo-100 transition';
+                });
+
+                // Show/hide Tip-to-Tail translation controls
+                const tttBox = document.getElementById('tip-to-tail-controls');
+                if (tttBox) {
+                    tttBox.classList.toggle('hidden', state.method !== 'tip_to_tail');
+                    document.getElementById('slider-anim-progress').value = state.animProgress;
+                    document.getElementById('anim-progress-label').textContent = `${Math.round(state.animProgress * 100)}%`;
+                    document.getElementById('chk-ghost-b').checked = state.showGhostBAtOrigin;
+                    document.getElementById('chk-local-triangle').checked = state.showLocalTriangleB;
+                }
+
+                // Vector A inputs (2 decimals)
+                const magA = getMagnitude(state.A);
+                const angA = getAngleDeg(state.A);
+                if (document.activeElement !== document.getElementById('in-ax')) {
+                    document.getElementById('in-ax').value = fmt2(state.A.x);
+                }
+                if (document.activeElement !== document.getElementById('in-ay')) {
+                    document.getElementById('in-ay').value = fmt2(state.A.y);
+                }
+                if (document.activeElement !== document.getElementById('in-amag')) {
+                    document.getElementById('in-amag').value = fmt2(magA);
+                }
+                if (document.activeElement !== document.getElementById('in-aang')) {
+                    document.getElementById('in-aang').value = fmt2(angA);
+                }
+                document.getElementById('vecA-summary').textContent = `|A| = ${fmt2(magA)}, θ = ${fmt2(angA)}°`;
+
+                // Vector B inputs (2 decimals)
+                const magB = getMagnitude(state.B);
+                const angB = getAngleDeg(state.B);
+                if (document.activeElement !== document.getElementById('in-bx')) {
+                    document.getElementById('in-bx').value = fmt2(state.B.x);
+                }
+                if (document.activeElement !== document.getElementById('in-by')) {
+                    document.getElementById('in-by').value = fmt2(state.B.y);
+                }
+                if (document.activeElement !== document.getElementById('in-bmag')) {
+                    document.getElementById('in-bmag').value = fmt2(magB);
+                }
+                if (document.activeElement !== document.getElementById('in-bang')) {
+                    document.getElementById('in-bang').value = fmt2(angB);
+                }
+                document.getElementById('vecB-summary').textContent = `|B| = ${fmt2(magB)}, θ = ${fmt2(angB)}°`;
+
+                // Scalars c & d
+                if (document.activeElement !== document.getElementById('in-scalar-c')) {
+                    document.getElementById('in-scalar-c').value = fmt2(state.c);
+                }
+                document.getElementById('slider-scalar-c').value = Math.max(-5, Math.min(5, state.c));
+
+                if (document.activeElement !== document.getElementById('in-scalar-d')) {
+                    document.getElementById('in-scalar-d').value = fmt2(state.d);
+                }
+                document.getElementById('slider-scalar-d').value = Math.max(-5, Math.min(5, state.d));
+
+                const magCA = getMagnitude(cA);
+                const angCA = getAngleDeg(cA);
+                document.getElementById('scaled-a-info').innerHTML = `
+                    <span>${fmtScalarCompact(effC)}·A = (${fmt2(cA.x)}, ${fmt2(cA.y)})</span>
+                    <span>|cA| = ${fmt2(magCA)}, θ = ${fmt2(angCA)}°</span>
+                `;
+
+                const magDB = getMagnitude(dB);
+                const angDB = getAngleDeg(dB);
+                document.getElementById('scaled-b-info').innerHTML = `
+                    <span>${fmtScalarCompact(effD)}·B = (${fmt2(dB.x)}, ${fmt2(dB.y)})</span>
+                    <span>|dB| = ${fmt2(magDB)}, θ = ${fmt2(angDB)}°</span>
+                `;
+
+                const eqStr = formatEquationFromScalars(effC, effD);
+                if (!skipEquationInputUpdate && document.activeElement !== document.getElementById('equation-input')) {
+                    document.getElementById('equation-input').value = eqStr;
+                    setEquationValidStyle(true);
+                }
+
+                document.querySelectorAll('.eq-chip').forEach(chip => {
+                    const isMatch = chip.dataset.eq.replace(/\s+/g, '') === eqStr.replace(/\s+/g, '');
+                    chip.className = isMatch
+                        ? 'eq-chip px-2 py-0.5 rounded text-[11px] font-bold math-font bg-indigo-600 text-white shadow-sm transition'
+                        : 'eq-chip px-2 py-0.5 rounded text-[11px] font-bold math-font bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition';
+                });
+
+                const isSub = state.showResultant && state.showVecA && state.showVecB && (effC * effD < 0);
+                document.getElementById('subtraction-mode-box').classList.toggle('hidden', !isSub);
+
+                // Resultant Card
+                const magR = getMagnitude(R);
+                const angR = getAngleDeg(R);
+                const betweenAng = getAngleBetweenDeg(state.A, state.B);
+
+                document.getElementById('res-coords').textContent = `R = (${fmt2(R.x)}, ${fmt2(R.y)})`;
+                document.getElementById('res-mag').textContent = fmt2(magR);
+                document.getElementById('res-angle').textContent = `${fmt2(angR)}°`;
+                document.getElementById('between-angle').textContent = `${fmt2(betweenAng)}°`;
+
+                const stepBox = document.getElementById('step-by-step-box');
+                const banner = document.getElementById('live-equation-banner');
+                const note = document.getElementById('pedagogical-note');
+
+                const ax = fmt2(state.A.x), ay = fmt2(state.A.y);
+                const bx = fmt2(state.B.x), by = fmt2(state.B.y);
+                const rx = fmt2(R.x), ry = fmt2(R.y);
+                const cStr = fmt2(effC), dStr = fmt2(effD);
+
+                if (activeMode === 'single_a') {
+                    banner.innerHTML = `
+                        <span class="text-xs font-bold text-blue-300">מצב וקטור בודד A:</span>
+                        <span class="math-font font-bold">
+                            A = (${ax}, ${ay}) , |A| = ${fmt2(magA)} , θ_A = ${fmt2(angA)}°
+                        </span>
+                    `;
+                    stepBox.innerHTML = `
+                        <div>A_x = |A|·cos(θ) = ${fmt2(magA)}·cos(${fmt2(angA)}°) = <b class="text-blue-700">${ax}</b></div>
+                        <div>A_y = |A|·sin(θ) = ${fmt2(magA)}·sin(${fmt2(angA)}°) = <b class="text-blue-700">${ay}</b></div>
+                    `;
+                    note.textContent = 'במצב וקטור בודד ניתן להדגים לתלמידים גודל וכיוון של וקטור, לסמן "קווי היטל מקווקווים" ו"חצי רכיבים על הצירים", או לשנות את הסקלר c.';
+                } else if (activeMode === 'single_b') {
+                    banner.innerHTML = `
+                        <span class="text-xs font-bold text-orange-300">מצב וקטור בודד B:</span>
+                        <span class="math-font font-bold">
+                            B = (${bx}, ${by}) , |B| = ${fmt2(magB)} , θ_B = ${fmt2(angB)}°
+                        </span>
+                    `;
+                    stepBox.innerHTML = `
+                        <div>B_x = |B|·cos(θ) = ${fmt2(magB)}·cos(${fmt2(angB)}°) = <b class="text-orange-700">${bx}</b></div>
+                        <div>B_y = |B|·sin(θ) = ${fmt2(magB)}·sin(${fmt2(angB)}°) = <b class="text-orange-700">${by}</b></div>
+                    `;
+                    note.textContent = 'במצב וקטור בודד B ניתן להדגים לתלמידים פירוק לרכיבים וכפל בסקלר d.';
+                } else {
+                    banner.innerHTML = `
+                        <span class="text-xs font-bold text-slate-400">משוואה:</span>
+                        <span class="math-font font-bold">
+                            <span class="text-emerald-400">R</span> = ${eqStr} = (${rx}, ${ry})
+                            <span class="text-amber-300 ml-1">[|R|=${fmt2(magR)}, θ=${fmt2(angR)}°]</span>
+                        </span>
+                    `;
+                    stepBox.innerHTML = `
+                        <div>R_x = (${cStr})·(${ax}) + (${dStr})·(${bx}) = <b class="text-emerald-700">${rx}</b></div>
+                        <div>R_y = (${cStr})·(${ay}) + (${dStr})·(${by}) = <b class="text-emerald-700">${ry}</b></div>
+                        <div>|R| = <b class="text-emerald-700">${fmt2(magR)}</b> , θ_R = <b class="text-emerald-700">${fmt2(angR)}°</b></div>
+                    `;
+                    if (state.method === 'tip_to_tail') {
+                        note.textContent = 'בשיטת ראש-זנב, וקטור B עובר לקצה של וקטור A יחד עם ההיטלים שלו על הצירים: סמן "קווי היטל מקווקווים" ו"חצי רכיבים על הצירים" כדי לראות ש-B_x ממשיך מקצה A_x עד ל-R_x, ו-B_y ממשיך מקצה A_y עד ל-R_y!';
+                    } else {
+                        note.textContent = 'ניתן להוסיף בהדרגה קווי היטל, חצי רכיבים על הצירים, או לבחור "שיטת ראש-זנב" וללחוץ על "הנפש העתקת וקטור".';
+                    }
+                }
+
+                render();
+            }
+
+            // --- Pointer & Drag Interaction on Canvas ---
+            function getPointerPos(evt) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+                const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+                return {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            }
+
+            function detectHandleAt(screenPos) {
+                if (state.showVecB) {
+                    const bTrans = getTranslatedBaseForB();
+                    if (bTrans.isTipToTail) {
+                        const { dB } = getEffectiveVectors();
+                        const tipTranslatedB = worldToScreen(bTrans.base.x + dB.x, bTrans.base.y + dB.y);
+                        if (Math.hypot(screenPos.x - tipTranslatedB.x, screenPos.y - tipTranslatedB.y) <= 22) {
+                            return 'B';
+                        }
+                        if (state.showGhostBAtOrigin) {
+                            const tipOriginB = worldToScreen(state.B.x, state.B.y);
+                            if (Math.hypot(screenPos.x - tipOriginB.x, screenPos.y - tipOriginB.y) <= 20) {
+                                return 'B_origin';
+                            }
+                        }
+                    } else {
+                        const tipB = worldToScreen(state.B.x, state.B.y);
+                        if (Math.hypot(screenPos.x - tipB.x, screenPos.y - tipB.y) <= 20) return 'B';
+                    }
+                }
+                if (state.showVecA) {
+                    const tipA = worldToScreen(state.A.x, state.A.y);
+                    if (Math.hypot(screenPos.x - tipA.x, screenPos.y - tipA.y) <= 20) return 'A';
+                }
+                return null;
+            }
+
+            canvas.addEventListener('pointerdown', (e) => {
+                const pos = getPointerPos(e);
+                const handle = detectHandleAt(pos);
+                if (handle) {
+                    state.dragging = handle;
+                    canvas.style.cursor = 'grabbing';
+                } else {
+                    state.dragging = 'pan';
+                    state.dragStartMouse = pos;
+                    state.dragStartPan = { x: state.panOffset.x, y: state.panOffset.y };
+                    canvas.style.cursor = 'move';
+                }
+                if (canvas.setPointerCapture) {
+                    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+                }
+                render();
+            });
+
+            canvas.addEventListener('pointermove', (e) => {
+                const pos = getPointerPos(e);
+                if (!state.dragging) {
+                    const hovered = detectHandleAt(pos);
+                    if (hovered !== state.hoveredHandle) {
+                        state.hoveredHandle = hovered;
+                        canvas.style.cursor = hovered ? 'grab' : 'crosshair';
+                        render();
+                    }
+                    return;
+                }
+
+                if (state.dragging === 'pan') {
+                    state.panOffset.x = state.dragStartPan.x + (pos.x - state.dragStartMouse.x);
+                    state.panOffset.y = state.dragStartPan.y + (pos.y - state.dragStartMouse.y);
+                    render();
+                    return;
+                }
+
+                const worldPos = screenToWorld(pos.x, pos.y);
+                const step = state.snapStep;
+
+                if (state.dragging === 'A') {
+                    const sx = roundTo(Math.round(worldPos.x / step) * step, 2);
+                    const sy = roundTo(Math.round(worldPos.y / step) * step, 2);
+                    state.A = { x: Math.max(-200, Math.min(200, sx)), y: Math.max(-200, Math.min(200, sy)) };
+                } else if (state.dragging === 'B') {
+                    const bTrans = getTranslatedBaseForB();
+                    if (bTrans.isTipToTail && Math.abs(state.d) > 1e-9) {
+                        const relX = (worldPos.x - bTrans.base.x) / state.d;
+                        const relY = (worldPos.y - bTrans.base.y) / state.d;
+                        const sx = roundTo(Math.round(relX / step) * step, 2);
+                        const sy = roundTo(Math.round(relY / step) * step, 2);
+                        state.B = { x: Math.max(-200, Math.min(200, sx)), y: Math.max(-200, Math.min(200, sy)) };
+                    } else {
+                        const sx = roundTo(Math.round(worldPos.x / step) * step, 2);
+                        const sy = roundTo(Math.round(worldPos.y / step) * step, 2);
+                        state.B = { x: Math.max(-200, Math.min(200, sx)), y: Math.max(-200, Math.min(200, sy)) };
+                    }
+                } else if (state.dragging === 'B_origin') {
+                    const sx = roundTo(Math.round(worldPos.x / step) * step, 2);
+                    const sy = roundTo(Math.round(worldPos.y / step) * step, 2);
+                    state.B = { x: Math.max(-200, Math.min(200, sx)), y: Math.max(-200, Math.min(200, sy)) };
+                }
+                updateUI();
+            });
+
+            window.addEventListener('pointerup', () => {
+                if (state.dragging) {
+                    state.dragging = null;
+                    canvas.style.cursor = state.hoveredHandle ? 'grab' : 'crosshair';
+                    render();
+                }
+            });
+
+            // --- Event Listeners for Controls ---
+            document.querySelectorAll('.vmode-btn').forEach(btn => {
+                btn.addEventListener('click', () => applyViewMode(btn.dataset.vmode));
+            });
+
+            ['chk-vis-a', 'card-chk-a'].forEach(id => {
+                document.getElementById(id).addEventListener('change', (e) => {
+                    state.showVecA = e.target.checked;
+                    updateUI();
+                });
+            });
+            ['chk-vis-b', 'card-chk-b'].forEach(id => {
+                document.getElementById(id).addEventListener('change', (e) => {
+                    state.showVecB = e.target.checked;
+                    updateUI();
+                });
+            });
+            ['chk-vis-r', 'card-chk-r'].forEach(id => {
+                document.getElementById(id).addEventListener('change', (e) => {
+                    state.showResultant = e.target.checked;
+                    updateUI();
+                });
+            });
+
+            document.getElementById('equation-input').addEventListener('input', (e) => {
+                const parsed = parseVectorEquation(e.target.value);
+                if (parsed.valid) {
+                    state.c = parsed.c;
+                    state.d = parsed.d;
+                    state.showVecA = parsed.hasATerm;
+                    state.showVecB = parsed.hasBTerm;
+                    state.showResultant = (parsed.hasATerm && parsed.hasBTerm) || (parsed.hasATerm && Math.abs(parsed.c - 1) > 1e-9) || (parsed.hasBTerm && Math.abs(parsed.d - 1) > 1e-9);
+                    state.animProgress = 1.0;
+                    setEquationValidStyle(true);
+                    updateUI(true);
+                } else {
+                    setEquationValidStyle(false);
+                }
+            });
+
+            document.querySelectorAll('.eq-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const eq = chip.dataset.eq;
+                    document.getElementById('equation-input').value = eq;
+                    const parsed = parseVectorEquation(eq);
+                    if (parsed.valid) {
+                        state.c = parsed.c;
+                        state.d = parsed.d;
+                        state.showVecA = parsed.hasATerm;
+                        state.showVecB = parsed.hasBTerm;
+                        state.showResultant = (parsed.hasATerm && parsed.hasBTerm) || (parsed.hasATerm && Math.abs(parsed.c - 1) > 1e-9) || (parsed.hasBTerm && Math.abs(parsed.d - 1) > 1e-9);
+                        state.animProgress = 1.0;
+                        setEquationValidStyle(true);
+                        updateUI();
+                    }
+                });
+            });
+
+            document.querySelectorAll('.method-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.method = btn.dataset.method;
+                    if (state.method === 'tip_to_tail') {
+                        state.animProgress = 1.0;
+                    }
+                    updateUI();
+                });
+            });
+
+            // Tip-to-Tail Translation Slider & Checkboxes
+            document.getElementById('slider-anim-progress').addEventListener('input', (e) => {
+                state.animProgress = parseFloat(e.target.value) || 0;
+                document.getElementById('anim-progress-label').textContent = `${Math.round(state.animProgress * 100)}%`;
+                render();
+            });
+
+            document.getElementById('chk-ghost-b').addEventListener('change', (e) => {
+                state.showGhostBAtOrigin = e.target.checked;
+                render();
+            });
+
+            document.getElementById('chk-local-triangle').addEventListener('change', (e) => {
+                state.showLocalTriangleB = e.target.checked;
+                render();
+            });
+
+            document.querySelectorAll('.subview-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.subview-btn').forEach(b => {
+                        b.className = 'subview-btn py-1 px-1.5 rounded-lg text-[11px] font-bold bg-white text-indigo-900 border border-indigo-200 hover:bg-indigo-100 transition';
+                    });
+                    btn.className = 'subview-btn py-1 px-1.5 rounded-lg text-[11px] font-bold bg-indigo-600 text-white shadow-sm transition';
+                    state.subView = btn.dataset.subview;
+                    render();
+                });
+            });
+
+            // Tip-to-Tail Sliding Animation
+            document.getElementById('btn-animate').addEventListener('click', () => {
+                if (state.animating) return;
+                state.showVecA = true;
+                state.showVecB = true;
+                state.showResultant = true;
+                if (state.method === 'none' || state.method === 'parallelogram') {
+                    state.method = 'tip_to_tail';
+                }
+                updateUI();
+
+                state.animating = true;
+                state.animProgress = 0;
+                const startTime = performance.now();
+                const duration = 1400;
+
+                function step(now) {
+                    const elapsed = now - startTime;
+                    const raw = Math.min(1, elapsed / duration);
+                    state.animProgress = raw < 0.5
+                        ? 4 * raw * raw * raw
+                        : 1 - Math.pow(-2 * raw + 2, 3) / 2;
+                    document.getElementById('slider-anim-progress').value = state.animProgress;
+                    document.getElementById('anim-progress-label').textContent = `${Math.round(state.animProgress * 100)}%`;
+                    render();
+                    if (raw < 1) {
+                        requestAnimationFrame(step);
+                    } else {
+                        state.animating = false;
+                        state.animProgress = 1;
+                        document.getElementById('slider-anim-progress').value = 1;
+                        document.getElementById('anim-progress-label').textContent = '100%';
+                        render();
+                    }
+                }
+                requestAnimationFrame(step);
+            });
+
+            // Display Toggles
+            document.getElementById('select-snap').addEventListener('change', (e) => {
+                state.snapStep = parseFloat(e.target.value) || 0.5;
+            });
+            document.getElementById('chk-components').addEventListener('change', (e) => {
+                state.showComponents = e.target.checked;
+                render();
+            });
+            document.getElementById('chk-axis-vectors').addEventListener('change', (e) => {
+                state.showAxisVectors = e.target.checked;
+                render();
+            });
+            document.getElementById('chk-comp-a').addEventListener('change', (e) => {
+                state.compA = e.target.checked;
+                render();
+            });
+            document.getElementById('chk-comp-b').addEventListener('change', (e) => {
+                state.compB = e.target.checked;
+                render();
+            });
+            document.getElementById('chk-comp-r').addEventListener('change', (e) => {
+                state.compR = e.target.checked;
+                render();
+            });
+            document.getElementById('chk-labels').addEventListener('change', (e) => {
+                state.showLabels = e.target.checked;
+                render();
+            });
+            document.getElementById('chk-angles').addEventListener('change', (e) => {
+                state.showAngles = e.target.checked;
+                render();
+            });
+
+            // Cartesian Inputs (Ax, Ay, Bx, By)
+            ['in-ax', 'in-ay'].forEach(id => {
+                const el = document.getElementById(id);
+                el.addEventListener('input', () => {
+                    const x = parseFloat(document.getElementById('in-ax').value) || 0;
+                    const y = parseFloat(document.getElementById('in-ay').value) || 0;
+                    state.A = { x: roundTo(x, 2), y: roundTo(y, 2) };
+                    updateUI();
+                });
+                el.addEventListener('change', () => updateUI());
+            });
+
+            ['in-bx', 'in-by'].forEach(id => {
+                const el = document.getElementById(id);
+                el.addEventListener('input', () => {
+                    const x = parseFloat(document.getElementById('in-bx').value) || 0;
+                    const y = parseFloat(document.getElementById('in-by').value) || 0;
+                    state.B = { x: roundTo(x, 2), y: roundTo(y, 2) };
+                    updateUI();
+                });
+                el.addEventListener('change', () => updateUI());
+            });
+
+            // Polar Inputs (|A|, θ_A, |B|, θ_B)
+            ['in-amag', 'in-aang'].forEach(id => {
+                const el = document.getElementById(id);
+                el.addEventListener('input', () => {
+                    const mag = Math.max(0, parseFloat(document.getElementById('in-amag').value) || 0);
+                    const angRad = (parseFloat(document.getElementById('in-aang').value) || 0) * (Math.PI / 180);
+                    state.A = {
+                        x: roundTo(mag * Math.cos(angRad), 2),
+                        y: roundTo(mag * Math.sin(angRad), 2)
+                    };
+                    updateUI();
+                });
+                el.addEventListener('change', () => updateUI());
+            });
+
+            ['in-bmag', 'in-bang'].forEach(id => {
+                const el = document.getElementById(id);
+                el.addEventListener('input', () => {
+                    const mag = Math.max(0, parseFloat(document.getElementById('in-bmag').value) || 0);
+                    const angRad = (parseFloat(document.getElementById('in-bang').value) || 0) * (Math.PI / 180);
+                    state.B = {
+                        x: roundTo(mag * Math.cos(angRad), 2),
+                        y: roundTo(mag * Math.sin(angRad), 2)
+                    };
+                    updateUI();
+                });
+                el.addEventListener('change', () => updateUI());
+            });
+
+            // Scalar Sliders & Inputs
+            function setScalarC(val) {
+                state.c = roundTo(Math.max(-10, Math.min(10, parseFloat(val) || 0)), 2);
+                updateUI();
+            }
+            function setScalarD(val) {
+                state.d = roundTo(Math.max(-10, Math.min(10, parseFloat(val) || 0)), 2);
+                updateUI();
+            }
+
+            document.getElementById('slider-scalar-c').addEventListener('input', (e) => setScalarC(e.target.value));
+            document.getElementById('in-scalar-c').addEventListener('input', (e) => setScalarC(e.target.value));
+            document.getElementById('reset-scalar-c').addEventListener('click', () => setScalarC(1));
+
+            document.getElementById('slider-scalar-d').addEventListener('input', (e) => setScalarD(e.target.value));
+            document.getElementById('in-scalar-d').addEventListener('input', (e) => setScalarD(e.target.value));
+            document.getElementById('reset-scalar-d').addEventListener('click', () => setScalarD(1));
+
+            // Classroom Presets
+            document.getElementById('preset-select').addEventListener('change', (e) => {
+                const val = e.target.value;
+                if (!val) return;
+
+                state.c = 1;
+                state.d = 1;
+                state.panOffset = { x: 0, y: 0 };
+
+                if (val === 'single_a_demo') {
+                    state.A = { x: 5, y: 4 };
+                    applyViewMode('single_a');
+                    state.showComponents = true;
+                    state.showAxisVectors = true;
+                    state.showAngles = true;
+                    document.getElementById('chk-components').checked = true;
+                    document.getElementById('chk-axis-vectors').checked = true;
+                    document.getElementById('chk-angles').checked = true;
+                } else if (val === 'standard') {
+                    state.A = { x: 4, y: 2 };
+                    state.B = { x: 2, y: 4 };
+                    applyViewMode('full');
+                } else if (val === 'orthogonal') {
+                    state.A = { x: 4, y: 0 };
+                    state.B = { x: 0, y: 3 };
+                    applyViewMode('full');
+                } else if (val === 'obtuse') {
+                    state.A = { x: 4, y: 0 };
+                    state.B = { x: -3, y: 3 };
+                    applyViewMode('full');
+                } else if (val === 'opposite') {
+                    state.A = { x: 4, y: 3 };
+                    state.B = { x: -4, y: -3 };
+                    applyViewMode('full');
+                } else if (val === 'linear_comb') {
+                    state.A = { x: 2, y: 1 };
+                    state.B = { x: -1, y: 2 };
+                    state.c = 3;
+                    state.d = -2;
+                    applyViewMode('full');
+                }
+                e.target.value = '';
+                updateUI();
+            });
+
+            // Reset Button (Resets to clean default teaching view)
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                state.A = { x: 4, y: 3 };
+                state.B = { x: -2, y: 4 };
+                state.showVecA = true;
+                state.showVecB = true;
+                state.showResultant = true;
+                state.c = 1;
+                state.d = 1;
+                state.method = 'none';
+                state.showComponents = false;
+                state.showAxisVectors = false;
+                state.showAngles = false;
+                state.compA = true;
+                state.compB = true;
+                state.compR = false;
+                document.getElementById('chk-components').checked = false;
+                document.getElementById('chk-axis-vectors').checked = false;
+                document.getElementById('chk-angles').checked = false;
+                document.getElementById('chk-comp-a').checked = true;
+                document.getElementById('chk-comp-b').checked = true;
+                document.getElementById('chk-comp-r').checked = false;
+                state.zoomFactor = 1.0;
+                state.panOffset = { x: 0, y: 0 };
+                document.getElementById('zoom-label').textContent = '100%';
+                updateUI();
+            });
+
+            // Zoom & Auto-Fit Controls
+            function updateZoom(delta) {
+                state.zoomFactor = Math.max(0.08, Math.min(3.0, roundTo(state.zoomFactor + delta, 2)));
+                document.getElementById('zoom-label').textContent = `${Math.round(state.zoomFactor * 100)}%`;
+                render();
+            }
+
+            function autoFitView() {
+                const { cA, dB, R } = getEffectiveVectors();
+                const pts = [];
+                if (state.showVecA) pts.push(state.A, cA);
+                if (state.showVecB) pts.push(state.B, dB);
+                if (state.showResultant) pts.push(R);
+                let maxCoord = 5;
+                pts.forEach(p => {
+                    maxCoord = Math.max(maxCoord, Math.abs(p.x), Math.abs(p.y));
+                });
+                const minDim = Math.min(canvas.width, canvas.height);
+                const desiredPpu = (minDim * 0.38) / maxCoord;
+                state.zoomFactor = Math.max(0.08, Math.min(2.5, roundTo(desiredPpu / state.scale, 2)));
+                state.panOffset = { x: 0, y: 0 };
+                document.getElementById('zoom-label').textContent = `${Math.round(state.zoomFactor * 100)}%`;
+                render();
+            }
+
+            document.getElementById('btn-zoom-in').addEventListener('click', () => updateZoom(0.15));
+            document.getElementById('btn-zoom-out').addEventListener('click', () => updateZoom(-0.15));
+            document.getElementById('btn-auto-fit').addEventListener('click', autoFitView);
+            document.getElementById('btn-center-origin').addEventListener('click', () => {
+                state.panOffset = { x: 0, y: 0 };
+                render();
+            });
+
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                updateZoom(e.deltaY < 0 ? 0.1 : -0.1);
+            }, { passive: false });
+
+            // Immediate + ResizeObserver Initialization so Canvas is NEVER blank
+            window.addEventListener('resize', resizeCanvas);
+            if (typeof ResizeObserver !== 'undefined') {
+                const ro = new ResizeObserver(() => resizeCanvas());
+                ro.observe(document.getElementById('canvas-container'));
+            }
+
+            resizeCanvas();
+            updateUI();
+        })();
+    </script>
+</body>
+</html>
