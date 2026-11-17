@@ -63,14 +63,35 @@ document.addEventListener('DOMContentLoaded', () => {
         renderList('presentations-content', data.presentations);
         renderList('exercises-content', data.exercises);
         renderList('exams-content', data.exams);
-        renderList('activities-content', data.activities);
 
-        // Render Videos & Simulations
-        renderVideos('videos-content', data.videos);
+        // Render Explanatory Videos
+        renderVideos('videos-content', data.videos, 'אין סרטוני הסבר זמינים כרגע.');
+
+        // Render Simulations, Demos & Activities
+        const hasSims = data.simulations && data.simulations.length > 0;
+        const hasActs = data.activities && data.activities.length > 0;
+        const simContainer = document.getElementById('simulations-embeds');
+        const actContainer = document.getElementById('activities-content');
+
+        if (!hasSims && !hasActs) {
+            simContainer.innerHTML = '';
+            actContainer.innerHTML = '<p class="empty-state">אין סימולציות או פעילויות זמינות כרגע.</p>';
+        } else {
+            if (hasSims) {
+                renderVideos('simulations-embeds', data.simulations);
+            } else {
+                simContainer.innerHTML = '';
+            }
+            if (hasActs) {
+                renderList('activities-content', data.activities, hasSims ? 'פעילויות וקישורים נוספים' : null);
+            } else {
+                actContainer.innerHTML = '';
+            }
+        }
     }
 
     // Helper to render standard links lists
-    function renderList(containerId, items) {
+    function renderList(containerId, items, headingText) {
         const container = document.getElementById(containerId);
         if (!items || items.length === 0) {
             container.innerHTML = '<p class="empty-state">אין כרגע חומר מעודכן בחלק זה. יתווסף בקרוב.</p>';
@@ -90,14 +111,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         container.innerHTML = '';
+        if (headingText) {
+            const h3 = document.createElement('h3');
+            h3.className = 'video-group-title';
+            h3.style.marginBottom = '15px';
+            h3.textContent = headingText;
+            container.appendChild(h3);
+        }
         container.appendChild(ul);
     }
 
     // Helper to render videos/iframes
-    function renderVideos(containerId, videos) {
+    function renderVideos(containerId, videos, emptyMsg) {
         const container = document.getElementById(containerId);
         if (!videos || videos.length === 0) {
-            container.innerHTML = '<p class="empty-state">אין סרטונים או סימולציות זמינים כרגע.</p>';
+            container.innerHTML = `<p class="empty-state">${emptyMsg || 'אין סרטונים או סימולציות זמינים כרגע.'}</p>`;
             return;
         }
         
