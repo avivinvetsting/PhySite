@@ -70,6 +70,7 @@ const mechanicsData = {
         ],
         exams: [],
         activities: [
+            { title: "מעבדת מכונת אטווד אינטראקטיבית - Atwood Lab (מעבדה מקומית)", link: "Atwood/atwood-lab.html?v=2", note: "⭐ סימולציה אינטראקטיבית מלאה: שני גופים, חוט וגלגלת, גרפים בזמן אמת ותכנון ניסוי." },
             { title: "משוך בחבל: חוקי ניוטון - דף למורה (מכון דוידסון, PDF)", link: "https://davidson.org.il/vod/wp-content/uploads/sites/2/2022/01/Masuch-bahaval_-huki-Newton_teacher_0-4.pdf", note: "שיעור אחד. צפייה בסרטון + עבודה עצמית בסימולציית PhET (משיכה בחבל) - החוק הראשון והשני. כולל תשובות." },
             { title: "משוך בחבל: חוקי ניוטון - דף לתלמיד (מכון דוידסון, PDF)", link: "https://davidson.org.il/vod/wp-content/uploads/sites/2/2011/07/Masuch-bahaval_-huki-Newton_student-4.pdf", note: "גרסת התלמיד של הפעילות. מיועד במקור לחטיבת ביניים - טוב כפתיחה/חזרה." },
             { title: "Physics Classroom: תרגול אינטראקטיבי - תרשימי גוף חופשי (אנגלית)", link: "https://www.physicsclassroom.com/Physics-Interactives/Newtons-Laws/Free-Body-Diagrams", note: "התלמיד בוחר את הכוחות הנכונים לכל מצב ומקבל משוב מיידי." },
@@ -98,7 +99,6 @@ const mechanicsData = {
             { title: "סימולציה PhET: כוחות ותנועה", embed: '<iframe src="https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
             { title: "סימולציה PhET: חיכוך", embed: '<iframe src="https://phet.colorado.edu/sims/html/friction/latest/friction_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
             { title: "סימולציה PhET: כוחות במימד אחד (כולל תרשים גוף חופשי)", embed: '<iframe src="https://phet.colorado.edu/sims/cheerpj/forces-1d/latest/forces-1d.html?simulation=forces-1d&locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
-            { title: "סימולציה: ניסוי החוק השני - עגלה על מסילה (Walter Fendt)", embed: '<iframe src="https://www.walter-fendt.de/html5/phen/newtonlaw2_en.htm" width="800" height="600" allowfullscreen></iframe>' },
             { title: "סימולציה PhET: מישור משופע - כוחות ותנועה", embed: '<iframe src="https://phet.colorado.edu/sims/cheerpj/motion-series/latest/motion-series.html?simulation=ramp-forces-and-motion&locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' }
         ]
     },
