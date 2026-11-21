@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>סימולציית אלקטרוסטטיקה – קווי שדה, שווי-פוטנציאל ושדה שקול</title>
+    <style>
+        :root {
+            --pos: #e53935; --neg: #1e88e5; --accent: #ff9800; --accent-dark: #e65100;
+            --border: #e0e0e0; --text: #263238; --muted: #607d8b;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f3f4f6; color: var(--text); }
+        h1 { font-size: 20px; margin: 0; text-align: center; }
+        .top-bar { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; max-width: 1216px; margin: 0 auto 12px; position: relative; }
+        .back-link { position: absolute; right: 0; text-decoration: none; padding: 6px 12px; border: 1px solid #cbd5e1; background: white; border-radius: 18px; font-size: 13px; font-weight: 600; color: #1e40af; transition: 0.15s; }
+        .back-link:hover { background: #eff6ff; border-color: #93c5fd; }
+        @media (max-width: 900px) { .back-link { position: static; } }
+        .layout { display: grid; grid-template-columns: minmax(0, 900px) 300px; gap: 16px; justify-content: center; align-items: start; }
+        @media (max-width: 1240px) { .layout { grid-template-columns: minmax(0, 900px); } }
+
+        #canvas-container { position: relative; width: 100%; background: #fbfbfd; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid var(--border); touch-action: none; }
+        canvas { display: block; width: 100%; height: auto; aspect-ratio: 900 / 560; cursor: crosshair; }
+        canvas.grab { cursor: grab; }
+        canvas.grabbing { cursor: grabbing; }
+        .hint { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.92); padding: 4px 10px; border-radius: 8px; font-size: 12px; border: 1px solid #ddd; pointer-events: none; color: var(--muted); }
+        #readout { margin-top: 8px; padding: 8px 12px; background: white; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; min-height: 38px; display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+        #readout .val { font-family: Consolas, 'Courier New', monospace; font-weight: 600; direction: ltr; unicode-bidi: isolate; }
+        #readout .note { color: var(--muted); font-size: 12px; }
+
+        aside { display: flex; flex-direction: column; gap: 12px; }
+        .card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .card h2 { font-size: 14px; margin: 0 0 8px; color: var(--muted); font-weight: 600; }
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .btn { padding: 7px 10px; border: 1px solid #ccc; background: white; border-radius: 18px; cursor: pointer; transition: 0.15s; font-size: 13px; font-family: inherit; color: var(--text); }
+        .btn:hover { background: #f0f0f0; }
+        .btn.pos { border-color: #ef9a9a; color: #c62828; }
+        .btn.neg { border-color: #90caf9; color: #1565c0; }
+        .btn.active { background: #fff3e0; border-color: var(--accent); color: var(--accent-dark); font-weight: 600; }
+        .btn.danger { color: #d32f2f; border-color: #ef9a9a; }
+        .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+        .opt { display: flex; align-items: center; gap: 6px; font-size: 14px; margin: 4px 0; cursor: pointer; }
+        .row { display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 14px; }
+        .row label { min-width: 92px; }
+        .row input[type=range] { flex: 1; }
+        .row .num { font-family: Consolas, monospace; min-width: 42px; text-align: center; direction: ltr; }
+        #sel-empty { color: var(--muted); font-size: 13px; }
+        .notes { font-size: 12.5px; line-height: 1.55; color: #455a64; }
+        .notes p { margin: 4px 0; }
+        .legend { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-left: 4px; border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <a href="../electricity.html" target="_top" class="back-link" id="back-link">➔ חזרה לפורטל</a>
+    <h1>סימולציית שדה חשמלי – קווי שדה, שווי-פוטנציאל ועקרון הסופרפוזיציה</h1>
+</div>
+
+<div class="layout">
+    <main>
+        <div id="canvas-container">
+            <canvas id="simCanvas"></canvas>
+            <div class="hint">גרירה להזזה · לחיצה לבחירה · גלילה לשינוי גודל · לחיצה כפולה / Delete למחיקה</div>
+        </div>
+        <div id="readout"><span class="note">העבירו את העכבר מעל הלוח כדי למדוד את השדה בנקודה.</span></div>
+    </main>
+
+    <aside>
+        <div class="card">
+            <h2>הוספת עצמים</h2>
+            <div class="grid2">
+                <button class="btn pos" onclick="addObject('point', 1)">+ מטען נקודתי</button>
+                <button class="btn neg" onclick="addObject('point', -1)">− מטען נקודתי</button>
+                <button class="btn pos" onclick="addObject('shell', 1)">+ קליפה כדורית</button>
+                <button class="btn neg" onclick="addObject('shell', -1)">− קליפה כדורית</button>
+                <button class="btn pos" onclick="addObject('plate', 1)">+ לוח סופי</button>
+                <button class="btn neg" onclick="addObject('plate', -1)">− לוח סופי</button>
+                <button class="btn pos" onclick="addObject('inf_plate', 1)">+ לוח אינסופי</button>
+                <button class="btn neg" onclick="addObject('inf_plate', -1)">− לוח אינסופי</button>
+            </div>
+            <div style="margin-top:8px"><button class="btn danger" onclick="clearAll()">איפוס – ניקוי הלוח</button></div>
+        </div>
+
+        <div class="card">
+            <h2>תרחישים מוכנים</h2>
+            <div class="presets">
+                <button class="btn" onclick="loadPreset('dipole')">דיפול</button>
+                <button class="btn" onclick="loadPreset('like')">שני מטענים זהים</button>
+                <button class="btn" onclick="loadPreset('unequal')">‎+2q ו- −q</button>
+                <button class="btn" onclick="loadPreset('capacitor')">קבל (לוחות סופיים)</button>
+                <button class="btn" onclick="loadPreset('ideal_capacitor')">קבל אידיאלי</button>
+                <button class="btn" onclick="loadPreset('shell_centered')">מטען במרכז קליפה</button>
+                <button class="btn" onclick="loadPreset('shell_insulator_off')">מטען מוזז – קליפה מבודדת</button>
+                <button class="btn" onclick="loadPreset('shell_conductor_off')">מטען מוזז – קליפה מוליכה</button>
+                <button class="btn" onclick="loadPreset('shell_outside')">מטען מחוץ לקליפה מוליכה</button>
+                <button class="btn" onclick="loadPreset('point_plane')">מטען ליד לוח</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>תצוגה</h2>
+            <label class="opt"><input type="radio" name="mode" value="lines" checked onchange="setMode(this.value)"> קווי שדה</label>
+            <label class="opt"><input type="radio" name="mode" value="vectors" onchange="setMode(this.value)"> חצי וקטורים (צבע = עוצמה)</label>
+            <label class="opt"><input type="radio" name="mode" value="none" onchange="setMode(this.value)"> ללא</label>
+            <hr style="border:none;border-top:1px solid #eee;margin:8px 0">
+            <label class="opt"><input type="checkbox" id="optEquip" onchange="setOpt('equip', this.checked)"> <span class="legend" style="background:#2e7d32"></span>קווים שווי-פוטנציאל</label>
+            <label class="opt"><input type="checkbox" id="optHeat" onchange="setOpt('heat', this.checked)"> מפת עוצמת שדה (רקע)</label>
+            <label class="opt"><input type="checkbox" id="optProbe" checked onchange="setOpt('probe', this.checked)"> <span class="legend" style="background:var(--accent)"></span>מד שדה שקול (בעכבר)</label>
+            <label class="opt"><input type="checkbox" id="optComp" onchange="setOpt('components', this.checked)"> הצגת תרומת כל עצם (סופרפוזיציה)</label>
+        </div>
+
+        <div class="card" id="sel-card">
+            <h2>עצם נבחר</h2>
+            <div id="sel-empty">לחצו על עצם בלוח כדי לערוך אותו.</div>
+            <div id="sel-body" hidden>
+                <div style="font-weight:600" id="sel-type"></div>
+                <div class="row" id="sel-mat-row" hidden>
+                    <label>חומר הקליפה</label>
+                    <button class="btn" id="sel-mat-ins" onclick="setMaterial('insulator')">מבודדת</button>
+                    <button class="btn" id="sel-mat-con" onclick="setMaterial('conductor')">מוליכה</button>
+                </div>
+                <div class="row">
+                    <label id="sel-sign-label">סימן</label>
+                    <button class="btn pos" id="sel-pos" onclick="setSign(1)">+ חיובי</button>
+                    <button class="btn neg" id="sel-neg" onclick="setSign(-1)">− שלילי</button>
+                    <button class="btn" id="sel-zero" hidden onclick="setNeutral()">0 ניטרלית</button>
+                </div>
+                <div class="row" id="sel-mag-row">
+                    <label id="sel-mag-label">גודל המטען</label>
+                    <input type="range" id="sel-mag" dir="ltr" min="0.25" max="5" step="0.25" oninput="setMagnitude(this.value)">
+                    <span class="num" id="sel-mag-val"></span>
+                </div>
+                <div class="row" id="sel-size-row">
+                    <label id="sel-size-label">גודל</label>
+                    <input type="range" id="sel-size" dir="ltr" oninput="setSize(this.value)">
+                    <span class="num" id="sel-size-val"></span>
+                </div>
+                <div class="row" id="sel-center-row" hidden>
+                    <button class="btn" onclick="centerPointInShell()">מרכז את המטען בקליפה</button>
+                </div>
+                <div id="sel-shell-info" class="notes" style="margin:6px 0" hidden></div>
+                <button class="btn danger" onclick="deleteSelected()">מחיקת העצם</button>
+            </div>
+        </div>
+
+        <div class="card notes">
+            <h2>המודל הפיזיקלי</h2>
+            <p><b>מטען נקודתי וקליפה מבודדת:</b> המטען על הקליפה מפוזר באופן אחיד וקבוע. מחוץ לקליפה E = kQ/r², ובתוכה המטען שעל הקליפה אינו תורם לשדה (רק מטענים אחרים פועלים שם).</p>
+            <p><b>קליפה מוליכה (דקה):</b> מטענים חופשיים מסתדרים בשיווי משקל (שיטת מטעני הדמות של קלווין). מטען q<sub>in</sub> בתוך הקליפה משרה ‎−q<sub>in</sub> בדופן הפנימית (מקוטב לכיוון המטען אם אינו במרכז) ו-‎Q + q<sub>in</sub> מפוזר אחיד בדופן החיצונית – לכן <b>השדה מחוץ לקליפה תמיד סימטרי כדורית סביב מרכז הקליפה</b>, בלי תלות במיקום המטען הפנימי! מטען חיצוני אינו חודר לתוך חלל הקליפה (כלוב פאראדיי).</p>
+            <p><b>לוח סופי / אינסופי:</b> פתרון אנליטי מדויק לרצועה אחידה σ וללוח אינסופי (E = σ/2ε₀).</p>
+        </div>
+    </aside>
+</div>
+
+<script>
+'use strict';
+
+// === PHYSICS-BEGIN ===
+// יחידות יחסיות: מטען נקודתי q=1 יוצר E=1 במרחק 100px; לוח אינסופי בצפיפות 1 יוצר E=1.
+const W = 900, H = 560;
+const K = 10000;            // E = K q / r^2
+const PLATE_E = 1;          // שדה לוח אינסופי ליחידת צפיפות (= 2πkσ)
+const POINT_R = 14;         // רדיוס ציור של מטען נקודתי
+const PLATE_W = 8;          // עובי ציור של לוח
+const SOFT_R2 = 16;         // ריכוך סינגולריות במרכז מטען נקודתי
+
+let objects = [];
+
+function addPointFieldAt(cx, cy, q, x, y, out) {
+    if (q === 0) return;
+    const dx = x - cx, dy = y - cy;
+    const r2 = dx * dx + dy * dy;
+    if (r2 < 1e-12) return;
+    const r = Math.sqrt(r2);
+    const e = K * q / Math.max(r2, SOFT_R2) / r;
+    out.x += e * dx;
+    out.y += e * dy;
+}
+
+function pointPotentialAt(cx, cy, q, x, y) {
+    if (q === 0) return 0;
+    return K * q / Math.max(Math.hypot(x - cx, y - cy), 2);
+}
+
+// שדה של קליפה כדורית (מבודדת או מוליכה לפי שיטת מטעני הדמות של קלווין)
+function addShellField(s, x, y, out) {
+    const dx = x - s.x, dy = y - s.y;
+    const r2 = dx * dx + dy * dy;
+    const R = s.radius, R2 = R * R;
+    const inside = r2 <= R2;
+
+    if (s.material !== 'conductor') {
+        if (!inside) addPointFieldAt(s.x, s.y, s.q, x, y, out);
+        return;
+    }
+
+    let qInTotal = 0;
+    for (const p of objects) {
+        if (p.type !== 'point') continue;
+        const px = p.x - s.x, py = p.y - s.y;
+        const d2 = px * px + py * py;
+        const d = Math.sqrt(d2);
+        if (d < R - 1e-6) {
+            qInTotal += p.q;
+            if (inside) {
+                // מטען פנימי: בדופן הפנימית מושרה מטען דמות מחוץ לקליפה ב-R²/d
+                if (d > 1e-4) {
+                    const f = R2 / d2;
+                    addPointFieldAt(s.x + px * f, s.y + py * f, -p.q * (R / d), x, y, out);
+                }
+            } else {
+                // מחוץ לקליפה: הדופן הפנימית ממסכת בדיוק את המטען הפנימי במקומו האמיתי
+                addPointFieldAt(p.x, p.y, -p.q, x, y, out);
+            }
+        } else if (d > R + 1e-6) {
+            if (inside) {
+                // מטען חיצוני: הקליפה המוליכה מבטלת את השדה שלו בתוך החלל (כלוב פאראדיי)
+                addPointFieldAt(p.x, p.y, -p.q, x, y, out);
+            } else {
+                // מחוץ לקליפה: שני מטעני דמות בתוך הקליפה (ומטען שומר ניטרליות במרכז)
+                const f = R2 / d2;
+                const qImg = -p.q * (R / d);
+                addPointFieldAt(s.x + px * f, s.y + py * f, qImg, x, y, out);
+                addPointFieldAt(s.x, s.y, -qImg, x, y, out);
+            }
+        }
+    }
+    // על הדופן החיצונית מתפזר באופן אחיד המטען Q_shell + qInTotal
+    if (!inside) {
+        addPointFieldAt(s.x, s.y, s.q + qInTotal, x, y, out);
+    }
+}
+
+// מוסיף את השדה של עצם בודד בנקודה (x,y) לתוך out
+function addField(o, x, y, out) {
+    const dx = x - o.x, dy = y - o.y;
+    switch (o.type) {
+        case 'point':
+            addPointFieldAt(o.x, o.y, o.q, x, y, out);
+            return;
+        case 'shell':
+            addShellField(o, x, y, out);
+            return;
+        case 'plate': {
+            // רצועה אינסופית בעומק, רוחב h בציר y, במיקום x=o.x. אינטגרציה סגורה של קווי מטען 2kλ/ρ.
+            const a = (o.y - o.h / 2) - y;   // קצה עליון יחסית לנקודה
+            const b = (o.y + o.h / 2) - y;   // קצה תחתון יחסית לנקודה
+            const c = o.q * PLATE_E / Math.PI; // = 2kσ
+            if (dx !== 0) out.x += c * (Math.atan(b / dx) - Math.atan(a / dx));
+            const d2 = dx * dx;
+            out.y += 0.5 * c * Math.log((d2 + a * a + 1e-9) / (d2 + b * b + 1e-9));
+            return;
+        }
+        case 'inf_plate': {
+            if (dx > 0) out.x += o.q * PLATE_E;
+            else if (dx < 0) out.x -= o.q * PLATE_E;
+            return;
+        }
+    }
+}
+
+function fieldAt(x, y) {
+    const out = { x: 0, y: 0 };
+    for (const o of objects) addField(o, x, y, out);
+    return out;
+}
+
+function fieldOf(o, x, y) {
+    const out = { x: 0, y: 0 };
+    addField(o, x, y, out);
+    return out;
+}
+
+function shellPotential(s, x, y) {
+    const dx = x - s.x, dy = y - s.y;
+    const r = Math.hypot(dx, dy), R = s.radius, R2 = R * R;
+    const inside = r <= R;
+
+    if (s.material !== 'conductor') {
+        return K * s.q / Math.max(r, R);
+    }
+
+    let qInTotal = 0;
+    let v = 0;
+    for (const p of objects) {
+        if (p.type !== 'point') continue;
+        const px = p.x - s.x, py = p.y - s.y;
+        const d2 = px * px + py * py;
+        const d = Math.sqrt(d2);
+        if (d < R - 1e-6) {
+            qInTotal += p.q;
+            if (inside) {
+                if (d > 1e-4) {
+                    const f = R2 / d2;
+                    v += pointPotentialAt(s.x + px * f, s.y + py * f, -p.q * (R / d), x, y);
+                } else {
+                    v += -K * p.q / R;
+                }
+            } else {
+                v += pointPotentialAt(p.x, p.y, -p.q, x, y);
+            }
+        } else if (d > R + 1e-6) {
+            if (inside) {
+                v += pointPotentialAt(p.x, p.y, -p.q, x, y) + K * p.q / d;
+            } else {
+                const f = R2 / d2;
+                const qImg = -p.q * (R / d);
+                v += pointPotentialAt(s.x + px * f, s.y + py * f, qImg, x, y);
+                v += pointPotentialAt(s.x, s.y, -qImg, x, y);
+            }
+        }
+    }
+    const qOut = s.q + qInTotal;
+    v += K * qOut / Math.max(r, R);
+    return v;
+}
+
+// פוטנציאל (עד כדי קבוע עבור לוחות)
+function potentialOf(o, x, y) {
+    const dx = x - o.x, dy = y - o.y;
+    switch (o.type) {
+        case 'point': return pointPotentialAt(o.x, o.y, o.q, x, y);
+        case 'shell': return shellPotential(o, x, y);
+        case 'inf_plate': return -o.q * PLATE_E * Math.abs(dx);
+        case 'plate': {
+            const a = (o.y - o.h / 2) - y, b = (o.y + o.h / 2) - y;
+            const c = o.q * PLATE_E / Math.PI;
+            const ad = Math.abs(dx), d2 = dx * dx;
+            // F(u) = ∫ ln(dx²+u²) du
+            const F = (u) => u * Math.log(d2 + u * u + 1e-9) - 2 * u + (ad > 0 ? 2 * ad * Math.atan(u / ad) : 0);
+            return -0.5 * c * (F(b) - F(a));
+        }
+    }
+    return 0;
+}
+
+function potentialAt(x, y) {
+    let v = 0;
+    for (const o of objects) v += potentialOf(o, x, y);
+    return v;
+}
+// === PHYSICS-END ===
+
+// ---------------------------------------------------------------- מצב
+const canvas = document.getElementById('simCanvas');
+const ctx = canvas.getContext('2d');
+
+let nextId = 1;
+let selected = null;
+let drag = null;            // { obj, offX, offY }
+let mouse = null;           // { x, y } בקואורדינטות לוגיות, או null מחוץ ללוח
+let addCount = 0;
+let sceneVersion = 0;       // עולה בכל שינוי בעצמים – לצורך מטמון חישובים
+const view = { mode: 'lines', equip: false, heat: false, probe: true, components: false };
+
+const TYPE_NAMES = { point: 'מטען נקודתי', shell: 'קליפה כדורית', plate: 'לוח סופי', inf_plate: 'לוח אינסופי' };
+
+function makeObj(type, q, x, y, size, material) {
+    const o = { id: nextId++, type, q, x, y };
+    if (type === 'point') o.radius = POINT_R;
+    if (type === 'shell') { o.radius = size || 70; o.material = material || 'insulator'; }
+    if (type === 'plate') o.h = size || 220;
+    if (type === 'inf_plate') o.y = H / 2;
+    return o;
+}
+
+function enclosingShellFor(p) {
+    if (!p || p.type !== 'point') return null;
+    for (const o of objects) {
+        if (o.type === 'shell' && Math.hypot(p.x - o.x, p.y - o.y) < o.radius) return o;
+    }
+    return null;
+}
+
+function innerChargeInShell(s) {
+    let qIn = 0;
+    for (const p of objects) {
+        if (p.type === 'point' && Math.hypot(p.x - s.x, p.y - s.y) < s.radius - 1e-6) qIn += p.q;
+    }
+    return qIn;
+}
+
+function sceneChanged() { sceneVersion++; requestDraw(); }
+
+// ---------------------------------------------------------------- פעולות משתמש
+function addObject(type, sign) {
+    const off = ((addCount++ % 7) - 3) * 28;
+    const vertical = (type === 'plate' || type === 'inf_plate');
+    const o = makeObj(type, sign, W / 2 + off, H / 2 + (vertical ? 0 : off * 0.5));
+    objects.push(o);
+    select(o);
+    sceneChanged();
+}
+
+function clearAll() {
+    objects = [];
+    select(null);
+    sceneChanged();
+}
+
+function deleteObj(o) {
+    objects = objects.filter(p => p !== o);
+    if (selected === o) select(null);
+    sceneChanged();
+}
+
+function deleteSelected() { if (selected) deleteObj(selected); }
+
+function loadPreset(name) {
+    const cy = H / 2;
+    const P = {
+        dipole:              () => [makeObj('point', 1, 330, cy), makeObj('point', -1, 570, cy)],
+        like:                () => [makeObj('point', 1, 330, cy), makeObj('point', 1, 570, cy)],
+        unequal:             () => [makeObj('point', 2, 360, cy), makeObj('point', -1, 560, cy)],
+        capacitor:           () => [makeObj('plate', 1, 370, cy, 260), makeObj('plate', -1, 530, cy, 260)],
+        ideal_capacitor:     () => [makeObj('inf_plate', 1, 340, cy), makeObj('inf_plate', -1, 560, cy)],
+        shell_centered:      () => [makeObj('shell', 1, 450, cy, 130, 'conductor'), makeObj('point', 1, 450, cy)],
+        shell_insulator_off: () => [makeObj('shell', 1, 450, cy, 130, 'insulator'), makeObj('point', 1, 385, cy - 35)],
+        shell_conductor_off: () => [makeObj('shell', 0, 450, cy, 130, 'conductor'), makeObj('point', 1, 385, cy - 35)],
+        shell_outside:       () => [makeObj('shell', 0, 520, cy, 110, 'conductor'), makeObj('point', 1.5, 310, cy)],
+        point_plane:         () => [makeObj('point', 1, 330, cy), makeObj('inf_plate', -1, 560, cy)],
+    };
+    objects = (P[name] || P.dipole)();
+    const sh = objects.find(o => o.type === 'shell');
+    select(sh || null);
+    sceneChanged();
+}
+
+function setMode(m) { view.mode = m; requestDraw(); }
+function setOpt(key, val) { view[key] = val; requestDraw(); }
+
+function select(o) {
+    selected = o;
+    syncPanel();
+    requestDraw();
+}
+
+function setMaterial(mat) {
+    if (!selected || selected.type !== 'shell') return;
+    selected.material = mat;
+    syncPanel();
+    sceneChanged();
+}
+
+function setSign(s) {
+    if (!selected) return;
+    const m = Math.abs(selected.q) || 1;
+    selected.q = s * m;
+    syncPanel();
+    sceneChanged();
+}
+
+function setNeutral() {
+    if (!selected || selected.type !== 'shell') return;
+    selected.q = 0;
+    syncPanel();
+    sceneChanged();
+}
+
+function setMagnitude(v) {
+    if (!selected) return;
+    const val = parseFloat(v);
+    if (val === 0) selected.q = 0;
+    else selected.q = (Math.sign(selected.q) || 1) * val;
+    syncPanel();
+    sceneChanged();
+}
+
+function setSize(v) {
+    if (!selected) return;
+    v = parseFloat(v);
+    if (selected.type === 'shell') selected.radius = v;
+    else if (selected.type === 'plate') selected.h = v;
+    syncPanel();
+    sceneChanged();
+}
+
+function centerPointInShell() {
+    if (!selected || selected.type !== 'point') return;
+    const sh = enclosingShellFor(selected);
+    if (!sh) return;
+    selected.x = sh.x;
+    selected.y = sh.y;
+    syncPanel();
+    sceneChanged();
+}
+
+function fmtSigned(v) {
+    if (Math.abs(v) < 1e-9) return '0';
+    const s = v > 0 ? '+' : '−';
+    const m = Math.abs(v);
+    return s + (Number.isInteger(m) ? m : m.toFixed(2).replace(/0$/, ''));
+}
+
+function syncPanel() {
+    const body = document.getElementById('sel-body');
+    const empty = document.getElementById('sel-empty');
+    if (!selected) { body.hidden = true; empty.hidden = false; return; }
+    body.hidden = false; empty.hidden = true;
+    const o = selected;
+    const isShell = o.type === 'shell';
+    const isPlate = (o.type === 'plate' || o.type === 'inf_plate');
+
+    document.getElementById('sel-type').textContent = TYPE_NAMES[o.type] +
+        (isShell ? (o.material === 'conductor' ? ' (מוליכה)' : ' (מבודדת)') : '');
+
+    const matRow = document.getElementById('sel-mat-row');
+    matRow.hidden = !isShell;
+    if (isShell) {
+        document.getElementById('sel-mat-ins').classList.toggle('active', o.material !== 'conductor');
+        document.getElementById('sel-mat-con').classList.toggle('active', o.material === 'conductor');
+    }
+
+    document.getElementById('sel-pos').classList.toggle('active', o.q > 0);
+    document.getElementById('sel-neg').classList.toggle('active', o.q < 0);
+    const zeroBtn = document.getElementById('sel-zero');
+    zeroBtn.hidden = !isShell;
+    zeroBtn.classList.toggle('active', o.q === 0);
+
+    const mag = document.getElementById('sel-mag');
+    mag.min = isShell ? 0 : 0.25;
+    document.getElementById('sel-mag-label').textContent = isPlate ? 'צפיפות σ' : (isShell ? 'מטען הקליפה Q' : 'גודל המטען');
+    mag.value = Math.abs(o.q);
+    document.getElementById('sel-mag-val').textContent = Math.abs(o.q).toFixed(2);
+
+    const sizeRow = document.getElementById('sel-size-row');
+    const size = document.getElementById('sel-size');
+    if (isShell) {
+        sizeRow.hidden = false;
+        document.getElementById('sel-size-label').textContent = 'רדיוס';
+        size.min = 20; size.max = 250; size.step = 5; size.value = o.radius;
+        document.getElementById('sel-size-val').textContent = o.radius;
+    } else if (o.type === 'plate') {
+        sizeRow.hidden = false;
+        document.getElementById('sel-size-label').textContent = 'אורך הלוח';
+        size.min = 30; size.max = H; size.step = 10; size.value = o.h;
+        document.getElementById('sel-size-val').textContent = o.h;
+    } else {
+        sizeRow.hidden = true;
+    }
+
+    const encShell = o.type === 'point' ? enclosingShellFor(o) : null;
+    const centerRow = document.getElementById('sel-center-row');
+    centerRow.hidden = !encShell;
+
+    const infoEl = document.getElementById('sel-shell-info');
+    if (isShell && o.material === 'conductor') {
+        const qIn = innerChargeInShell(o);
+        const qInnerSurf = -qIn;
+        const qOuterSurf = o.q + qIn;
+        infoEl.hidden = false;
+        infoEl.innerHTML =
+            `מטען בדופן פנימית: <b dir="ltr">${fmtSigned(qInnerSurf)}</b> · ` +
+            `בדופן חיצונית: <b dir="ltr">${fmtSigned(qOuterSurf)}</b>`;
+    } else if (isShell) {
+        infoEl.hidden = false;
+        infoEl.innerHTML = `המטען <b dir="ltr">${fmtSigned(o.q)}</b> קבוע ומפוזר אחיד על פני הקליפה.`;
+    } else {
+        infoEl.hidden = true;
+    }
+}
+
+// ---------------------------------------------------------------- גיאומטריה ובדיקות פגיעה
+function surfaceDistance(o, x, y) {
+    const dx = x - o.x, dy = y - o.y;
+    switch (o.type) {
+        case 'point': return Math.max(0, Math.hypot(dx, dy) - o.radius);
+        case 'shell': return Math.abs(Math.hypot(dx, dy) - o.radius);
+        case 'plate': {
+            const yy = Math.max(o.y - o.h / 2, Math.min(o.y + o.h / 2, y));
+            return Math.hypot(dx, y - yy);
+        }
+        case 'inf_plate': return Math.abs(dx);
+    }
+    return Infinity;
+}
+
+// עדיפות: מטענים נקודתיים, לוחות, טבעת קליפה, פנים קליפה
+function hitTest(x, y) {
+    const rev = [...objects].reverse();
+    for (const o of rev) if (o.type === 'point' && Math.hypot(x - o.x, y - o.y) <= o.radius + 4) return o;
+    for (const o of rev) if ((o.type === 'plate' || o.type === 'inf_plate') && surfaceDistance(o, x, y) <= PLATE_W / 2 + 8) return o;
+    for (const o of rev) if (o.type === 'shell' && surfaceDistance(o, x, y) <= 8) return o;
+    for (const o of rev) if (o.type === 'shell' && Math.hypot(x - o.x, y - o.y) < o.radius) return o;
+    return null;
+}
+
+// ---------------------------------------------------------------- קווי שדה
+const LINES_PER_Q = 16;
+const LINE_SPACING = 2 * Math.PI * 100 / LINES_PER_Q;   // צפיפות קווים על לוח = צפיפות קווים של מטען יחידה ב-r=100 (שם E=1)
+const TRACE = { hIn: 2.5, hOut: 8, margin: 300, maxSteps: 2500 };
+
+function seedsFor(o) {
+    const seeds = [];
+    if (o.type === 'point') {
+        if (Math.abs(o.q) < 1e-6) return seeds;
+        const dir = o.q > 0 ? 1 : -1;
+        const n = Math.max(4, Math.round(LINES_PER_Q * Math.abs(o.q)));
+        const r0 = o.radius + 1;
+        for (let i = 0; i < n; i++) {
+            const t = 2 * Math.PI * i / n;
+            seeds.push({ x: o.x + Math.cos(t) * r0, y: o.y + Math.sin(t) * r0, dir, obj: o });
+        }
+    } else if (o.type === 'shell') {
+        const effQ = o.material === 'conductor' ? (o.q + innerChargeInShell(o)) : o.q;
+        if (Math.abs(effQ) >= 1e-6) {
+            const dir = effQ > 0 ? 1 : -1;
+            const n = Math.max(4, Math.round(LINES_PER_Q * Math.abs(effQ)));
+            const r0 = o.radius + 3;
+            for (let i = 0; i < n; i++) {
+                const t = 2 * Math.PI * i / n;
+                seeds.push({ x: o.x + Math.cos(t) * r0, y: o.y + Math.sin(t) * r0, dir, obj: o });
+            }
+        }
+        // עבור קליפה מוליכה ליד מטענים חיצוניים: זריעה מאזורים בדופן החיצונית שבהם השדה יוצא החוצה (מטען מושרה חיובי)
+        if (o.material === 'conductor') {
+            const hasExt = objects.some(p => p.type === 'point' && Math.hypot(p.x - o.x, p.y - o.y) > o.radius + 1e-6);
+            if (hasExt && effQ <= 0) {
+                const N = 24, r0 = o.radius + 3, tmp = { x: 0, y: 0 };
+                for (let i = 0; i < N; i++) {
+                    const t = 2 * Math.PI * i / N;
+                    const ux = Math.cos(t), uy = Math.sin(t);
+                    const sx = o.x + ux * r0, sy = o.y + uy * r0;
+                    tmp.x = 0; tmp.y = 0;
+                    for (const obj of objects) addField(obj, sx, sy, tmp);
+                    if (tmp.x * ux + tmp.y * uy > 0.08) {
+                        seeds.push({ x: sx, y: sy, dir: 1, obj: o });
+                    }
+                }
+            }
+        }
+    } else {
+        if (Math.abs(o.q) < 1e-6) return seeds;
+        const dir = o.q > 0 ? 1 : -1;
+        const mag = Math.abs(o.q);
+        const top = o.type === 'plate' ? o.y - o.h / 2 : 0;
+        const len = o.type === 'plate' ? o.h : H;
+        const n = Math.max(1, Math.round(len * mag / LINE_SPACING));
+        const off = PLATE_W / 2 + 1.5;
+        for (let i = 0; i < n; i++) {
+            const y = top + (i + 0.5) * len / n;
+            seeds.push({ x: o.x + off, y, dir, obj: o });
+            seeds.push({ x: o.x - off, y, dir, obj: o });
+        }
+    }
+    return seeds;
+}
+
+function unitField(x, y, s, out) {
+    out.x = 0; out.y = 0;
+    for (const o of objects) addField(o, x, y, out);
+    const m = Math.hypot(out.x, out.y);
+    if (!(m > 1e-7)) return false;
+    out.x *= s / m; out.y *= s / m;
+    return true;
+}
+
+function pointChargeAt(x, y, exclude) {
+    for (const o of objects) {
+        if (o.type !== 'point' || o === exclude) continue;
+        const dx = x - o.x, dy = y - o.y;
+        if (dx * dx + dy * dy < o.radius * o.radius) return o;
+    }
+    return null;
+}
+
+function nearestSurfaceObj(x, y, tol) {
+    let best = null, bestD = tol;
+    for (const o of objects) {
+        const d = surfaceDistance(o, x, y);
+        if (d <= bestD) { bestD = d; best = o; }
+    }
+    return best;
+}
+
+function crossesConductingShell(x1, y1, x2, y2) {
+    for (const o of objects) {
+        if (o.type === 'shell' && o.material === 'conductor') {
+            const r1 = Math.hypot(x1 - o.x, y1 - o.y);
+            const r2 = Math.hypot(x2 - o.x, y2 - o.y);
+            if ((r1 < o.radius) !== (r2 < o.radius)) return o;
+        }
+    }
+    return null;
+}
+
+// אינטגרציית RK4 של קו שדה; מחזיר את המסלול ואת העצם שבו הקו הסתיים (אם יש)
+function traceLine(seed) {
+    const s = seed.dir;
+    let x = seed.x, y = seed.y;
+    const pts = [x, y];
+    const k1 = { x: 0, y: 0 }, k2 = { x: 0, y: 0 }, k3 = { x: 0, y: 0 }, k4 = { x: 0, y: 0 };
+    let px = 0, py = 0, endObj = null, reason = 'steps';
+    const M = TRACE.margin;
+
+    for (let i = 0; i < TRACE.maxSteps; i++) {
+        const inside = x >= 0 && x <= W && y >= 0 && y <= H;
+        const h = inside ? TRACE.hIn : TRACE.hOut;
+        if (!unitField(x, y, s, k1)) { reason = 'null'; break; }
+        if (i > 0 && k1.x * px + k1.y * py < 0) { reason = 'sink'; break; }  // הכיוון התהפך: חצינו משטח טעון בכיוון ה"בור"
+        px = k1.x; py = k1.y;
+        let nx, ny;
+        if (unitField(x + 0.5 * h * k1.x, y + 0.5 * h * k1.y, s, k2) &&
+            unitField(x + 0.5 * h * k2.x, y + 0.5 * h * k2.y, s, k3) &&
+            unitField(x + h * k3.x, y + h * k3.y, s, k4)) {
+            nx = x + h / 6 * (k1.x + 2 * k2.x + 2 * k3.x + k4.x);
+            ny = y + h / 6 * (k1.y + 2 * k2.y + 2 * k3.y + k4.y);
+        } else {
+            nx = x + h * k1.x;
+            ny = y + h * k1.y;
+        }
+        if (Math.hypot(nx - x, ny - y) < 0.25 * h) { reason = 'sink'; break; } // תקיעה ליד משטח טעון
+        const crossedShell = crossesConductingShell(x, y, nx, ny);
+        if (crossedShell) {
+            // קו שדה מסתיים על פני מוליך ואינו חוצה את עובי הדופן
+            const ang = Math.atan2(ny - crossedShell.y, nx - crossedShell.x);
+            pts.push(crossedShell.x + Math.cos(ang) * crossedShell.radius, crossedShell.y + Math.sin(ang) * crossedShell.radius);
+            endObj = crossedShell;
+            reason = 'conductor';
+            break;
+        }
+        x = nx; y = ny;
+        pts.push(x, y);
+        if (x < -M || x > W + M || y < -M || y > H + M) { reason = 'out'; break; }
+        const hit = pointChargeAt(x, y, i < 8 ? seed.obj : null);
+        if (hit) { endObj = hit; reason = 'hit'; break; }
+    }
+    if (!endObj && (reason === 'sink' || reason === 'null')) endObj = nearestSurfaceObj(x, y, 10);
+    return { pts, endObj, dir: s };
+}
+
+function computeFieldLines() {
+    const lines = [];
+    for (const o of objects) {
+        for (const seed of seedsFor(o)) {
+            const L = traceLine(seed);
+            if (L.pts.length < 8) continue;                              // קו שאינו יוצא מהמשטח בצד זה
+            const endPos = L.endObj && (L.endObj.type === 'shell' && L.endObj.material === 'conductor'
+                ? true : L.endObj.q > 0);
+            if (seed.dir < 0 && endPos) continue;                        // כבר צויר מהמטען החיובי / מהקליפה
+            lines.push(L);
+        }
+    }
+    return lines;
+}
+
+// ---------------------------------------------------------------- שווי-פוטנציאל (Marching Squares)
+const EQUIP_DV = 25;
+const EQUIP_GRID = 5;
+
+function computeEquipotentials() {
+    const gs = EQUIP_GRID;
+    const nx = Math.ceil(W / gs) + 1, ny = Math.ceil(H / gs) + 1;
+    const V = new Float64Array(nx * ny);
+    for (let j = 0; j < ny; j++)
+        for (let i = 0; i < nx; i++)
+            V[j * nx + i] = potentialAt(i * gs, j * gs);
+
+    const segs = [];
+    const P = [];
+    for (let j = 0; j < ny - 1; j++) {
+        for (let i = 0; i < nx - 1; i++) {
+            const x0 = i * gs, y0 = j * gs, x1 = x0 + gs, y1 = y0 + gs;
+            const c = [V[j * nx + i], V[j * nx + i + 1], V[(j + 1) * nx + i + 1], V[(j + 1) * nx + i]];
+            const vmin = Math.min(c[0], c[1], c[2], c[3]), vmax = Math.max(c[0], c[1], c[2], c[3]);
+            if (!isFinite(vmin) || !isFinite(vmax)) continue;
+            if (vmax - vmin > 3 * EQUIP_DV) continue;   // קרוב מדי למטען – הקווים צפופים מדי
+            const corners = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+            for (let L = Math.ceil(vmin / EQUIP_DV) * EQUIP_DV; L <= vmax; L += EQUIP_DV) {
+                P.length = 0;
+                for (let e = 0; e < 4; e++) {
+                    const va = c[e], vb = c[(e + 1) % 4];
+                    if ((va < L) !== (vb < L)) {
+                        const t = (L - va) / (vb - va);
+                        const pa = corners[e], pb = corners[(e + 1) % 4];
+                        P.push(pa[0] + t * (pb[0] - pa[0]), pa[1] + t * (pb[1] - pa[1]));
+                    }
+                }
+                if (P.length >= 4) segs.push(P[0], P[1], P[2], P[3]);
+                if (P.length === 8) segs.push(P[4], P[5], P[6], P[7]);
+            }
+        }
+    }
+    return segs;
+}
+
+// ---------------------------------------------------------------- מפת עוצמה
+const E_MIN = 0.02, E_MAX = 20;
+function logNorm(mag) {
+    const t = (Math.log10(mag) - Math.log10(E_MIN)) / (Math.log10(E_MAX) - Math.log10(E_MIN));
+    return Math.max(0, Math.min(1, t));
+}
+
+const HEAT_STOPS = [[0, [251, 251, 253]], [0.4, [255, 248, 225]], [0.7, [255, 224, 178]], [1, [255, 171, 145]]];
+function heatColor(t) {
+    for (let i = 1; i < HEAT_STOPS.length; i++) {
+        if (t <= HEAT_STOPS[i][0]) {
+            const [t0, c0] = HEAT_STOPS[i - 1], [t1, c1] = HEAT_STOPS[i];
+            const f = (t - t0) / (t1 - t0);
+            return [c0[0] + f * (c1[0] - c0[0]), c0[1] + f * (c1[1] - c0[1]), c0[2] + f * (c1[2] - c0[2])];
+        }
+    }
+    return HEAT_STOPS[HEAT_STOPS.length - 1][1];
+}
+
+const HEAT_RES = 4;
+const heatCanvas = document.createElement('canvas');
+heatCanvas.width = Math.ceil(W / HEAT_RES);
+heatCanvas.height = Math.ceil(H / HEAT_RES);
+
+function computeHeatmap() {
+    const hc = heatCanvas.getContext('2d');
+    const img = hc.createImageData(heatCanvas.width, heatCanvas.height);
+    for (let j = 0; j < heatCanvas.height; j++) {
+        for (let i = 0; i < heatCanvas.width; i++) {
+            const E = fieldAt((i + 0.5) * HEAT_RES, (j + 0.5) * HEAT_RES);
+            const col = heatColor(logNorm(Math.hypot(E.x, E.y)));
+            const k = 4 * (j * heatCanvas.width + i);
+            img.data[k] = col[0]; img.data[k + 1] = col[1]; img.data[k + 2] = col[2]; img.data[k + 3] = 255;
+        }
+    }
+    hc.putImageData(img, 0, 0);
+}
+
+// ---------------------------------------------------------------- מטמון חישובים
+const cache = { lines: null, linesV: -1, equip: null, equipV: -1, heatV: -1 };
+function getLines() { if (cache.linesV !== sceneVersion) { cache.lines = computeFieldLines(); cache.linesV = sceneVersion; } return cache.lines; }
+function getEquip() { if (cache.equipV !== sceneVersion) { cache.equip = computeEquipotentials(); cache.equipV = sceneVersion; } return cache.equip; }
+function ensureHeat() { if (cache.heatV !== sceneVersion) { computeHeatmap(); cache.heatV = sceneVersion; } }
+
+// ---------------------------------------------------------------- ציור
+function drawArrowHead(x, y, ang, size, color) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(ang);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(size, 0);
+    ctx.lineTo(-size * 0.7, size * 0.65);
+    ctx.lineTo(-size * 0.35, 0);
+    ctx.lineTo(-size * 0.7, -size * 0.65);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+}
+
+function drawFieldLines() {
+    const lines = getLines();
+    ctx.strokeStyle = 'rgba(55, 71, 79, 0.7)';
+    ctx.lineWidth = 1.3;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    for (const L of lines) {
+        const p = L.pts;
+        ctx.moveTo(p[0], p[1]);
+        for (let i = 2; i < p.length; i += 2) ctx.lineTo(p[i], p[i + 1]);
+    }
+    ctx.stroke();
+
+    // ראשי חצים לאורך הקו, לפי מרחק לאורך המסלול
+    const FIRST = 45, EVERY = 120;
+    for (const L of lines) {
+        const p = L.pts;
+        let acc = 0, next = FIRST;
+        for (let i = 2; i < p.length; i += 2) {
+            const sx = p[i] - p[i - 2], sy = p[i + 1] - p[i - 1];
+            acc += Math.hypot(sx, sy);
+            if (acc >= next) {
+                next += EVERY;
+                if (p[i] < 0 || p[i] > W || p[i + 1] < 0 || p[i + 1] > H) continue;
+                const ang = Math.atan2(sy * L.dir, sx * L.dir);
+                drawArrowHead(p[i], p[i + 1], ang, 6, 'rgba(55, 71, 79, 0.9)');
+            }
+        }
+    }
+}
+
+function insideAnyBody(x, y) {
+    for (const o of objects) {
+        if (o.type === 'point' && Math.hypot(x - o.x, y - o.y) < o.radius + 3) return true;
+        if ((o.type === 'plate' || o.type === 'inf_plate') && surfaceDistance(o, x, y) < PLATE_W / 2 + 2) return true;
+    }
+    return false;
+}
+
+function drawVectors() {
+    const sp = 30, len = 20;
+    for (let x = sp / 2; x < W; x += sp) {
+        for (let y = sp / 2; y < H; y += sp) {
+            if (insideAnyBody(x, y)) continue;
+            const E = fieldAt(x, y);
+            const mag = Math.hypot(E.x, E.y);
+            if (mag < 1e-6) continue;
+            const t = logNorm(mag);
+            const ux = E.x / mag, uy = E.y / mag;
+            const shade = Math.round(170 - 140 * t);
+            const color = `rgba(${shade}, ${shade}, ${Math.round(shade * 1.1)}, ${0.25 + 0.75 * t})`;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.2 + 1.2 * t;
+            ctx.beginPath();
+            ctx.moveTo(x - ux * len / 2, y - uy * len / 2);
+            ctx.lineTo(x + ux * len / 2 - ux * 3, y + uy * len / 2 - uy * 3);
+            ctx.stroke();
+            drawArrowHead(x + ux * len / 2 - ux * 2, y + uy * len / 2 - uy * 2, Math.atan2(uy, ux), 5, color);
+        }
+    }
+}
+
+function drawEquipotentials() {
+    const s = getEquip();
+    ctx.strokeStyle = 'rgba(46, 125, 50, 0.75)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    for (let i = 0; i < s.length; i += 4) {
+        ctx.moveTo(s[i], s[i + 1]);
+        ctx.lineTo(s[i + 2], s[i + 3]);
+    }
+    ctx.stroke();
+}
+
+function chargeLabel(q) {
+    if (Math.abs(q) < 1e-9) return '0';
+    const m = Math.abs(q);
+    const sign = q > 0 ? '+' : '−';
+    return m === 1 ? sign : sign + (Number.isInteger(m) ? m : m.toFixed(2).replace(/0$/, ''));
+}
+
+// מצייר סימני +/− מושרים על הדופן הפנימית והחיצונית של קליפה מוליכה
+function drawConductorSurfaceCharges(s) {
+    const R = s.radius;
+    const N = 16;
+    ctx.font = 'bold 11px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // חישוב צפיפות מטען מושרה יחסית על הדופן הפנימית והחיצונית בזווית θ
+    let qInTotal = 0;
+    const inPts = [], outPts = [];
+    for (const p of objects) {
+        if (p.type !== 'point') continue;
+        const d = Math.hypot(p.x - s.x, p.y - s.y);
+        if (d < R - 1e-6) { qInTotal += p.q; inPts.push(p); }
+        else if (d > R + 1e-6) outPts.push(p);
+    }
+
+    // דופן פנימית: σ_in(θ) ∝ - Σ q_i (R² - d²) / |r_surf - r_i|³
+    if (inPts.length > 0) {
+        for (let i = 0; i < N; i++) {
+            const th = 2 * Math.PI * i / N;
+            const sx = s.x + Math.cos(th) * R, sy = s.y + Math.sin(th) * R;
+            let sig = 0;
+            for (const p of inPts) {
+                const d2 = (p.x - s.x) ** 2 + (p.y - s.y) ** 2;
+                const dist = Math.max(8, Math.hypot(sx - p.x, sy - p.y));
+                sig += -p.q * (R * R - d2) * R / (dist ** 3);
+            }
+            if (Math.abs(sig) > 0.12) {
+                ctx.fillStyle = sig > 0 ? '#c62828' : '#1565c0';
+                ctx.fillText(sig > 0 ? '+' : '−', s.x + Math.cos(th) * (R - 9), s.y + Math.sin(th) * (R - 9));
+            }
+        }
+    }
+
+    // דופן חיצונית: Q_out אחיד + קיטוב ממטענים חיצוניים
+    const qOut = s.q + qInTotal;
+    if (Math.abs(qOut) > 1e-6 || outPts.length > 0) {
+        for (let i = 0; i < N; i++) {
+            const th = 2 * Math.PI * i / N;
+            const sx = s.x + Math.cos(th) * R, sy = s.y + Math.sin(th) * R;
+            let sig = qOut;
+            for (const p of outPts) {
+                const d2 = (p.x - s.x) ** 2 + (p.y - s.y) ** 2;
+                const d = Math.sqrt(d2);
+                const dist = Math.max(12, Math.hypot(sx - p.x, sy - p.y));
+                sig += p.q * (R / d - R * (d2 - R * R) / (dist ** 3));
+            }
+            if (Math.abs(sig) > 0.12) {
+                ctx.fillStyle = sig > 0 ? '#c62828' : '#1565c0';
+                ctx.fillText(sig > 0 ? '+' : '−', s.x + Math.cos(th) * (R + 10), s.y + Math.sin(th) * (R + 10));
+            }
+        }
+    }
+}
+
+function drawObjects() {
+    for (const o of objects) {
+        const pos = o.q > 0, zero = Math.abs(o.q) < 1e-9;
+        const main = zero ? '#546e7a' : (pos ? '#e53935' : '#1e88e5');
+        const dark = zero ? '#37474f' : (pos ? '#b71c1c' : '#0d47a1');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        if (o.type === 'point') {
+            const g = ctx.createRadialGradient(o.x - 4, o.y - 4, 2, o.x, o.y, o.radius);
+            g.addColorStop(0, pos ? '#ff8a80' : '#82b1ff');
+            g.addColorStop(1, main);
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(o.x, o.y, o.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.fillStyle = 'white';
+            const lbl = chargeLabel(o.q);
+            ctx.font = lbl.length > 1 ? 'bold 11px Arial' : 'bold 18px Arial';
+            ctx.fillText(lbl, o.x, o.y + 1);
+        } else if (o.type === 'shell') {
+            const isCond = o.material === 'conductor';
+            // סימון צלב עדין במרכז הקליפה (עוזר למקם מטען במרכז)
+            ctx.save();
+            ctx.strokeStyle = 'rgba(96, 125, 139, 0.45)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(o.x - 6, o.y); ctx.lineTo(o.x + 6, o.y);
+            ctx.moveTo(o.x, o.y - 6); ctx.lineTo(o.x, o.y + 6);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.beginPath();
+            ctx.arc(o.x, o.y, o.radius, 0, Math.PI * 2);
+            ctx.fillStyle = isCond
+                ? 'rgba(120, 144, 156, 0.07)'
+                : (pos ? 'rgba(229, 57, 53, 0.06)' : 'rgba(30, 136, 229, 0.06)');
+            ctx.fill();
+            if (isCond) {
+                // טבעת מתכתית כפולה לקליפה מוליכה
+                ctx.strokeStyle = '#546e7a';
+                ctx.lineWidth = 6;
+                ctx.stroke();
+                ctx.strokeStyle = '#cfd8dc';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                drawConductorSurfaceCharges(o);
+            } else {
+                ctx.strokeStyle = main;
+                ctx.lineWidth = 4;
+                ctx.stroke();
+            }
+            ctx.fillStyle = dark;
+            ctx.font = 'bold 13px Arial';
+            const tag = isCond ? `${chargeLabel(o.q)} · מוליכה` : `${chargeLabel(o.q)} · מבודדת`;
+            ctx.fillText(tag, o.x, o.y - o.radius - 16);
+        } else if (o.type === 'plate' || o.type === 'inf_plate') {
+            const top = o.type === 'plate' ? o.y - o.h / 2 : 0;
+            const len = o.type === 'plate' ? o.h : H;
+            ctx.fillStyle = main;
+            ctx.fillRect(o.x - PLATE_W / 2, top, PLATE_W, len);
+            ctx.strokeStyle = dark;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(o.x - PLATE_W / 2, top, PLATE_W, len);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 11px Arial';
+            for (let yy = top + 14; yy < top + len - 6; yy += 28) ctx.fillText(pos ? '+' : '−', o.x, yy);
+        }
+
+        if (o === selected) {
+            ctx.save();
+            ctx.setLineDash([5, 4]);
+            ctx.strokeStyle = '#ff9800';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            if (o.type === 'point') ctx.arc(o.x, o.y, o.radius + 5, 0, Math.PI * 2);
+            else if (o.type === 'shell') ctx.arc(o.x, o.y, o.radius + 7, 0, Math.PI * 2);
+            else if (o.type === 'plate') ctx.rect(o.x - PLATE_W / 2 - 5, o.y - o.h / 2 - 5, PLATE_W + 10, o.h + 10);
+            else ctx.rect(o.x - PLATE_W / 2 - 5, -5, PLATE_W + 10, H + 10);
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+}
+
+function drawVectorArrow(x, y, vx, vy, len, color, width, label) {
+    const m = Math.hypot(vx, vy);
+    if (m === 0 || len < 2) return;
+    const ux = vx / m, uy = vy / m;
+    const ex = x + ux * len, ey = y + uy * len;
+    const head = Math.min(12, 4 + width * 2);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(ex - ux * head * 0.6, ey - uy * head * 0.6);
+    ctx.stroke();
+    drawArrowHead(ex - ux * head * 0.4, ey - uy * head * 0.4, Math.atan2(uy, ux), head, color);
+    if (label) {
+        ctx.fillStyle = color;
+        ctx.font = 'bold 14px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        // הרחקת התווית מראש החץ לפי מידות הטקסט, כדי שלא תחפוף אותו
+        const tw = ctx.measureText(label).width;
+        const off = 8 + 0.5 * (Math.abs(ux) * tw + Math.abs(uy) * 14);
+        ctx.fillText(label, ex + ux * off, ey + uy * off);
+    }
+}
+
+function drawProbe() {
+    if (!view.probe || !mouse || drag || objects.length === 0) return;
+    const E = fieldAt(mouse.x, mouse.y);
+    const mag = Math.hypot(E.x, E.y);
+
+    ctx.fillStyle = '#ff9800';
+    ctx.beginPath();
+    ctx.arc(mouse.x, mouse.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (view.components && objects.length > 1) {
+        // סקאלה לינארית משותפת – כדי שחיבור הווקטורים ייראה נכון
+        const comps = objects.map(o => ({ o, E: fieldOf(o, mouse.x, mouse.y) }));
+        let maxM = mag;
+        for (const c of comps) maxM = Math.max(maxM, Math.hypot(c.E.x, c.E.y));
+        if (maxM < 1e-9) return;
+        const scale = 120 / maxM;
+        for (const c of comps) {
+            const m = Math.hypot(c.E.x, c.E.y);
+            const col = c.o.type === 'shell' && c.o.material === 'conductor'
+                ? 'rgba(84, 110, 122, 0.9)'
+                : (c.o.q >= 0 ? 'rgba(229, 57, 53, 0.85)' : 'rgba(30, 136, 229, 0.85)');
+            drawVectorArrow(mouse.x, mouse.y, c.E.x, c.E.y, m * scale, col, 2, null);
+        }
+        drawVectorArrow(mouse.x, mouse.y, E.x, E.y, mag * scale, '#ff9800', 4, 'E שקול');
+    } else {
+        if (mag < 1e-6) return;
+        // אורך לוגריתמי – כדי שגם שדות חלשים וגם חזקים ייראו
+        const len = Math.max(14, Math.min(140, 60 + 35 * Math.log10(mag)));
+        drawVectorArrow(mouse.x, mouse.y, E.x, E.y, len, '#ff9800', 4, 'E שקול');
+    }
+}
+
+function updateReadout() {
+    const el = document.getElementById('readout');
+    if (!mouse || objects.length === 0) {
+        el.innerHTML = '<span class="note">העבירו את העכבר מעל הלוח כדי למדוד את השדה בנקודה.</span>';
+        return;
+    }
+    const E = fieldAt(mouse.x, mouse.y);
+    const mag = Math.hypot(E.x, E.y);
+    const ang = Math.atan2(-E.y, E.x) * 180 / Math.PI;    // זווית מתמטית (ציר y כלפי מעלה)
+    const V = potentialAt(mouse.x, mouse.y);
+    const hasPlates = objects.some(o => o.type === 'plate' || o.type === 'inf_plate');
+    el.innerHTML =
+        `<span dir="ltr">|E| = <span class="val">${mag.toFixed(3)}</span></span>` +
+        `<span>כיוון: <span class="val">${mag > 1e-6 ? ang.toFixed(0) + '°' : '—'}</span></span>` +
+        `<span dir="ltr">E<sub>x</sub> = <span class="val">${E.x.toFixed(3)}</span>, E<sub>y</sub> = <span class="val">${(-E.y).toFixed(3)}</span></span>` +
+        `<span><span dir="ltr">V = <span class="val">${V.toFixed(1)}</span></span>${hasPlates ? ' <span class="note">(ייחוס שרירותי בגלל הלוחות)</span>' : ''}</span>`;
+}
+
+function draw() {
+    ctx.clearRect(0, 0, W, H);
+    if (view.heat && objects.length) {
+        ensureHeat();
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(heatCanvas, 0, 0, W, H);
+    }
+    if (view.equip && objects.length) drawEquipotentials();
+    if (view.mode === 'lines') drawFieldLines();
+    else if (view.mode === 'vectors') drawVectors();
+    drawObjects();
+    drawProbe();
+    updateReadout();
+}
+
+let drawPending = false;
+function requestDraw() {
+    if (drawPending) return;
+    drawPending = true;
+    requestAnimationFrame(() => { drawPending = false; draw(); });
+}
+
+function setupCanvas() {
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.direction = 'ltr';   // טקסט מעורב (E שקול) על הקנבס
+    requestDraw();
+}
+
+// ---------------------------------------------------------------- קלט
+function toLogical(e) {
+    const r = canvas.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height };
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+    const p = toLogical(e);
+    mouse = p;
+    const o = hitTest(p.x, p.y);
+    select(o);
+    if (o) {
+        drag = { obj: o, offX: o.x - p.x, offY: o.y - p.y };
+        canvas.setPointerCapture(e.pointerId);
+        canvas.className = 'grabbing';
+    }
+});
+
+canvas.addEventListener('pointermove', (e) => {
+    const p = toLogical(e);
+    mouse = p;
+    if (drag) {
+        const o = drag.obj;
+        o.x = Math.max(0, Math.min(W, p.x + drag.offX));
+        if (o.type !== 'inf_plate') o.y = Math.max(0, Math.min(H, p.y + drag.offY));
+        // הצמדה מגנטית עדינה למרכז קליפה כשגוררים מטען נקודתי קרוב למרכז
+        if (o.type === 'point') {
+            for (const sh of objects) {
+                if (sh.type === 'shell' && Math.hypot(o.x - sh.x, o.y - sh.y) < 10) {
+                    o.x = sh.x; o.y = sh.y;
+                    break;
+                }
+            }
+        }
+        syncPanel();
+        sceneChanged();
+    } else {
+        canvas.className = hitTest(p.x, p.y) ? 'grab' : '';
+        requestDraw();
+    }
+});
+
+function endDrag() {
+    if (!drag) return;
+    drag = null;
+    canvas.className = '';
+    requestDraw();
+}
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
+canvas.addEventListener('pointerleave', () => { if (!drag) { mouse = null; requestDraw(); } });
+
+canvas.addEventListener('dblclick', (e) => {
+    const p = toLogical(e);
+    const o = hitTest(p.x, p.y);
+    if (o) deleteObj(o);
+});
+
+canvas.addEventListener('wheel', (e) => {
+    const p = toLogical(e);
+    const o = hitTest(p.x, p.y);
+    if (!o || (o.type !== 'shell' && o.type !== 'plate')) return;
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -5 : 5;
+    if (o.type === 'shell') o.radius = Math.max(20, Math.min(250, o.radius + delta));
+    else o.h = Math.max(30, Math.min(H, o.h + delta * 2));
+    if (o === selected) syncPanel();
+    sceneChanged();
+}, { passive: false });
+
+window.addEventListener('keydown', (e) => {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selected && !(e.target instanceof HTMLInputElement)) {
+        e.preventDefault();
+        deleteSelected();
+    } else if (e.key === 'Escape') {
+        select(null);
+    }
+});
+
+window.addEventListener('resize', setupCanvas);
+
+// ---------------------------------------------------------------- אתחול
+if (window.self !== window.top) {
+    const backLink = document.getElementById('back-link');
+    if (backLink) backLink.hidden = true;
+}
+setupCanvas();
+loadPreset('dipole');
+</script>
+</body>
+</html>

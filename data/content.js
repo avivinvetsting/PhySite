@@ -163,6 +163,9 @@ const electricityData = {
         title: "אלקטרוסטטיקה",
         summary: "<p>מטענים, שדות חשמליים ופוטנציאל.</p>",
         presentations: [], exercises: [], exams: [],
+        activities: [
+            { title: "מעבדת שדה חשמלי אינטראקטיבית – קווי שדה ושווי-פוטנציאל (מעבדה מקומית)", link: "ElectricField/electric-field.html", note: "⭐ סימולציה אינטראקטיבית מלאה (פתיחה במסך מלא): מטענים נקודתיים, קליפות מבודדות ומוליכות, לוחות סופיים ואינסופיים, קווי שדה, קווים שווי-פוטנציאל ועקרון הסופרפוזיציה." }
+        ],
         videos: [
             { group: "מטען חשמלי וטעינה", title: "אלקטרוסטטיקה - מבוא (מרכז שוורץ/רייסמן)", embed: '<iframe src="https://www.youtube.com/embed/ojPN4S_ONfc" frameborder="0" allowfullscreen></iframe>' },
             { group: "מטען חשמלי וטעינה", title: "מוליכים ומבודדים", embed: '<iframe src="https://www.youtube.com/embed/qDvdZZYoFXE" frameborder="0" allowfullscreen></iframe>' },
@@ -190,6 +193,7 @@ const electricityData = {
             { group: "מטען חשמלי וטעינה", title: "סימולציה PhET: בלונים וחשמל סטטי", embed: '<iframe src="https://phet.colorado.edu/sims/html/balloons-and-static-electricity/latest/balloons-and-static-electricity_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
             { group: "מטען חשמלי וטעינה", title: "סימולציה PhET: ג'ון טרבולטאז' (טעינה ופריקה)", embed: '<iframe src="https://phet.colorado.edu/sims/html/john-travoltage/latest/john-travoltage_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
             { group: "חוק קולון", title: "סימולציה PhET: חוק קולון", embed: '<iframe src="https://phet.colorado.edu/sims/html/coulombs-law/latest/coulombs-law_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' },
+            { group: "שדה חשמלי וקווי שדה", title: "סימולציה: שדה חשמלי, קווי שדה וקווים שווי-פוטנציאל (מעבדה מקומית)", embed: '<iframe src="ElectricField/electric-field.html" width="800" height="600" allowfullscreen></iframe>' },
             { group: "שדה חשמלי וקווי שדה", title: "ניסוי: המחשת קווי שדה חשמלי (אנגלית)", embed: '<iframe src="https://www.youtube.com/embed/IoaPm-VTtCM" frameborder="0" allowfullscreen></iframe>' },
             { group: "שדה חשמלי וקווי שדה", title: "שדה חשמלי מומחש באמצעות גבישים", embed: '<iframe src="https://www.youtube.com/embed/63FnT0W-Hxc" frameborder="0" allowfullscreen></iframe>' },
             { group: "שדה חשמלי וקווי שדה", title: "מיפוי קווי שדה של מטען נקודתי", embed: '<iframe src="https://www.youtube.com/embed/uB-rB1r561w" frameborder="0" allowfullscreen></iframe>' },
@@ -402,8 +406,12 @@ const mathData = {
                 <li><strong>כפל בסקלר:</strong> כפל וקטור במספר חיובי מגדיל/מקטין את אורכו מבלי לשנות את כיוונו. כפל במספר שלילי הופך גם את כיוונו.</li>
             </ul>
 
-            <h3>3. מעבדת הוקטורים האינטראקטיבית (VecMath)</h3>
-            <p>לרשותכם סימולציית <strong>VecMath</strong> בלשונית 'סרטונים וסימולציות' וב'פעילויות'. הסימולציה מאפשרת התנסות חיה בחיבור, חיסור, כפל בסקלר, פירוק לרכיבים ובדיקת זוויות בזמן אמת.</p>
+            <h3>3. כלים אינטראקטיביים: מעבדת הוקטורים (VecMath) ומחשבון מדעי</h3>
+            <p>לרשותכם בלשונית <strong>'סימולציות ופעילויות'</strong> שתי אפליקציות עזר לתרגול חי:</p>
+            <ul>
+                <li><strong>מעבדת הוקטורים (VecMath):</strong> התנסות חיה בחיבור, חיסור, כפל בסקלר, פירוק לרכיבים ובדיקת זוויות בזמן אמת.</li>
+                <li><strong>סימולטור מחשבון מדעי (CASIO):</strong> תרגול שימוש בפונקציות הטריגונומטריות במעלות (<code>sin</code>, <code>cos</code>, <code>tan</code>) לחישוב רכיבי וקטור, וכן שימוש בכפתור <strong>SHIFT</strong> לחישוב הפונקציות ההפוכות (<code>sin⁻¹</code>, <code>cos⁻¹</code>, <code>tan⁻¹</code>) למציאת זווית הוקטור מתוך רכיביו.</li>
+            </ul>
         `,
         presentations: [
             { title: "מצגת: מבוא לוקטורים ופירוק לרכיבים (PDF)", link: "#" },
@@ -418,6 +426,7 @@ const mathData = {
         ],
         activities: [
             { title: "מעבדת וקטורים אינטראקטיבית - VecMath (מעבדה מקומית)", link: "VecMath/vec-math.html", note: "⭐ סימולציה אינטראקטיבית מלאה (פתיחה במסך מלא): הצגת וקטור בודד, פירוק לרכיבים, חיבור, חיסור, כפל בסקלר וצירופים ליניאריים." },
+            { title: "סימולטור מחשבון מדעי (CASIO) – שימוש בפונקציות טריגונומטריות (מעבדה מקומית)", link: "ScientificCalculator/scientific-calculator.html", note: "⭐ מחשבון אינטראקטיבי (פתיחה במסך מלא): תרגול חישוב sin, cos, tan במעלות ושימוש ב-SHIFT לחישוב זווית באמצעות sin⁻¹, cos⁻¹, tan⁻¹." },
             { title: "Physics Classroom: תרגול חיבור וקטורים אינטראקטיבי (אנגלית)", link: "https://www.physicsclassroom.com/Physics-Interactives/Vectors-and-Projectiles/Vector-Addition", note: "תרגול חיבור וקטורים ומציאת שקול." }
         ],
         videos: [
@@ -427,6 +436,7 @@ const mathData = {
         ],
         simulations: [
             { group: "מעבדות וסימולציות אינטראקטיביות", title: "סימולציה: מעבדת וקטורים אינטראקטיבית (VecMath)", embed: '<iframe src="VecMath/vec-math.html" width="800" height="600" allowfullscreen></iframe>' },
+            { group: "מעבדות וסימולציות אינטראקטיביות", title: "סימולציה: מחשבון מדעי – שימוש ב-sin, cos, tan ופונקציות הפוכות (SHIFT)", embed: '<iframe src="ScientificCalculator/scientific-calculator.html" width="800" height="650" allowfullscreen></iframe>' },
             { group: "מעבדות וסימולציות אינטראקטיביות", title: "סימולציה PhET: חיבור וקטורים (Vector Addition)", embed: '<iframe src="https://phet.colorado.edu/sims/html/vector-addition/latest/vector-addition_all.html?locale=he" width="800" height="600" scrolling="no" allowfullscreen></iframe>' }
         ]
     }

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scientific Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-image: radial-gradient(circle, #e0e0e0 0%, #b0b0b0 100%);
+        }
+
+        .calculator-body {
+            background: linear-gradient(145deg, #2a2d32, #1f2125);
+            box-shadow: 
+                20px 20px 60px #1a1b1f,
+                -20px -20px 60px #34373d,
+                inset 0 0 0 1px #4a4d55;
+            border-radius: 30px;
+        }
+
+        .lcd-screen {
+            background-color: #8b9686;
+            box-shadow: inset 2px 2px 10px rgba(0, 0, 0, 0.4), inset -2px -2px 5px rgba(255, 255, 255, 0.2);
+            font-family: 'Share Tech Mono', monospace;
+            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        .solar-panel {
+            background: #1a1a1a;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.1);
+            background-image: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 18px,
+                #333 18px,
+                #333 20px
+            );
+        }
+
+        /* 3D Button Base */
+        .btn {
+            position: relative;
+            transition: all 0.1s ease;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: translateY(3px);
+        }
+
+        /* Scientific Buttons (Small, dark) */
+        .btn-sci {
+            background: linear-gradient(to bottom, #3a3f47, #2c3036);
+            color: #d1d5db;
+            box-shadow: 0 4px 0 #1a1d21, 0 5px 5px rgba(0,0,0,0.4);
+            border: 1px solid #4b515b;
+        }
+        .btn-sci:active {
+            box-shadow: 0 1px 0 #1a1d21, 0 2px 2px rgba(0,0,0,0.4);
+        }
+
+        /* Numpad Buttons (Light grey) */
+        .btn-num {
+            background: linear-gradient(to bottom, #e2e4e9, #c8cbce);
+            color: #111827;
+            box-shadow: 0 4px 0 #9ca3af, 0 5px 5px rgba(0,0,0,0.4);
+            border: 1px solid #f3f4f6;
+        }
+        .btn-num:active {
+            box-shadow: 0 1px 0 #9ca3af, 0 2px 2px rgba(0,0,0,0.4);
+        }
+
+        /* Action Buttons (DEL, AC - Red/Orange) */
+        .btn-action {
+            background: linear-gradient(to bottom, #ef4444, #dc2626);
+            color: white;
+            box-shadow: 0 4px 0 #991b1b, 0 5px 5px rgba(0,0,0,0.4);
+            border: 1px solid #f87171;
+        }
+        .btn-action:active {
+            box-shadow: 0 1px 0 #991b1b, 0 2px 2px rgba(0,0,0,0.4);
+        }
+        
+        /* Equals Button (Blue) */
+        .btn-equals {
+            background: linear-gradient(to bottom, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 0 #1e40af, 0 5px 5px rgba(0,0,0,0.4);
+            border: 1px solid #60a5fa;
+        }
+        .btn-equals:active {
+            box-shadow: 0 1px 0 #1e40af, 0 2px 2px rgba(0,0,0,0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <a href="../math.html" target="_top" id="back-link" dir="rtl" style="position: fixed; top: 16px; right: 16px; z-index: 50; text-decoration: none; padding: 6px 14px; border: 1px solid #cbd5e1; background: rgba(255,255,255,0.92); border-radius: 18px; font-size: 13px; font-weight: 600; color: #1e40af; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">➔ חזרה לפורטל</a>
+
+    <!-- Calculator Main Container -->
+    <div class="calculator-body w-[360px] p-5 sm:p-6 select-none relative">
+        
+        <!-- Top Section: Brand and Solar Panel -->
+        <div class="flex justify-between items-center mb-4 px-2">
+            <div class="flex flex-col">
+                <span class="text-gray-300 font-bold italic tracking-widest text-lg">CASIO</span>
+                <span class="text-gray-500 text-[10px] uppercase font-semibold">fx-991EX CLASSWIZ</span>
+            </div>
+            <div class="solar-panel w-24 h-8 rounded-sm border border-[#111]"></div>
+        </div>
+
+        <!-- LCD Screen -->
+        <div class="lcd-screen w-full h-24 rounded-lg mb-6 p-2 flex flex-col justify-between border-4 border-[#333]">
+            <div class="text-[10px] text-gray-800 font-bold flex justify-between px-1">
+                <div class="flex gap-2">
+                    <span id="shiftIndicator" style="visibility: hidden;">S</span>
+                    <span>D</span> <!-- Degrees indicator -->
+                </div>
+                <span>Math</span>
+            </div>
+            <!-- Expression History -->
+            <div id="expressionDisplay" class="text-gray-700 text-sm h-5 overflow-hidden text-right whitespace-nowrap px-1"></div>
+            <!-- Current Input / Result -->
+            <div id="mainDisplay" class="text-[#111] text-4xl text-right overflow-hidden whitespace-nowrap tracking-tighter">0</div>
+        </div>
+
+        <!-- Buttons Grid -->
+        <div class="grid grid-cols-5 gap-y-4 gap-x-2 sm:gap-3">
+            
+            <!-- Scientific Row 1 (Mock mostly) -->
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="toggleShift()">SHIFT</button>
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="handleMock('ALPHA')">ALPHA</button>
+            <button class="btn btn-sci h-8 rounded text-[18px] font-semibold flex items-center justify-center pb-2 col-span-2">
+                <!-- Mock Directional Pad -->
+                <div class="w-16 h-6 border border-gray-600 rounded-full flex justify-center items-center bg-[#222]">
+                    <span class="text-[8px] text-gray-400">REPLAY</span>
+                </div>
+            </button>
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="handleMock('ON')">ON</button>
+
+            <!-- Scientific Row 2 (Mock mostly) -->
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="handleMock('calc')">CALC</button>
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="handleMock('∫')">∫</button>
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="handleMock('x⁻¹')">x⁻¹</button>
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="handleMock('log')">log</button>
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="handleMock('ln')">ln</button>
+
+            <!-- Scientific Row 3 (Trig functions are real!) -->
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="handleMock('(-)')">(-)</button>
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="handleMock('°\'\"')">°'\"</button>
+            <button id="btn-sin" class="btn btn-sci h-8 rounded text-[12px] font-semibold" onclick="handleTrig('sin')">sin</button>
+            <button id="btn-cos" class="btn btn-sci h-8 rounded text-[12px] font-semibold" onclick="handleTrig('cos')">cos</button>
+            <button id="btn-tan" class="btn btn-sci h-8 rounded text-[12px] font-semibold" onclick="handleTrig('tan')">tan</button>
+
+            <!-- Scientific Row 4 (Mock mostly) -->
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="handleMock('STO')">STO</button>
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="handleMock('ENG')">ENG</button>
+            <button class="btn btn-sci h-8 rounded text-[12px] font-semibold" onclick="appendInput('(')">(</button>
+            <button class="btn btn-sci h-8 rounded text-[12px] font-semibold" onclick="appendInput(')')">)</button>
+            <button class="btn btn-sci h-8 rounded text-[11px] font-semibold" onclick="handleMock('S⇔D')">S⇔D</button>
+
+            <!-- Divider -->
+            <div class="col-span-5 h-[1px] bg-gray-600 my-1"></div>
+
+            <!-- Numpad Row 1 -->
+            <button class="btn btn-num h-10 rounded-md text-xl font-bold" onclick="appendInput('7')">7</button>
+            <button class="btn btn-num h-10 rounded-md text-xl font-bold" onclick="appendInput('8')">8</button>
+            <button class="btn btn-num h-10 rounded-md text-xl font-bold" onclick="appendInput('9')">9</button>
+            <button class="btn btn-action h-10 rounded-md text-[14px] font-bold" onclick="deleteLast()">DEL</button>
+            <button class="btn btn-action h-10 rounded-md text-[14px] font-bold" onclick="clearAll()">AC</button>
+
+            <!-- Numpad Row 2 -->
+            <button class="btn btn-num h-10 rounded-md text-xl font-bold" onclick="appendInput('4')">4</button>
+            <button class="btn btn-num h-10 rounded-md text-xl font-bold" onclick="appendInput('5')">5</button>
+            <button class="btn btn-num h-10 rounded-md text-xl font-bold" onclick="appendInput('6')">6</button>
+            <button class="btn btn-sci h-10 rounded-md text-xl font-bold" onclick="appendInput('×')">×</button>
+            <button class="btn btn-sci h-10 rounded-md text-xl font-bold" onclick="appendInput('÷')">÷</button>
+
+            <!-- Numpad Row 3 -->
+            <button class="btn btn-num h-10 rounded-md text-xl font-bold" onclick="appendInput('1')">1</button>
+            <button class="btn btn-num h-10 rounded-md text-xl font-bold" onclick="appendInput('2')">2</button>
+            <button class="btn btn-num h-10 rounded-md text-xl font-bold" onclick="appendInput('3')">3</button>
+            <button class="btn btn-sci h-10 rounded-md text-xl font-bold" onclick="appendInput('+')">+</button>
+            <button class="btn btn-sci h-10 rounded-md text-xl font-bold" onclick="appendInput('-')">-</button>
+
+            <!-- Numpad Row 4 -->
+            <button class="btn btn-num h-10 rounded-md text-xl font-bold" onclick="appendInput('0')">0</button>
+            <button class="btn btn-num h-10 rounded-md text-xl font-bold" onclick="appendInput('.')">.</button>
+            <button class="btn btn-num h-10 rounded-md text-[12px] font-bold" onclick="handleMock('×10ˣ')">×10ˣ</button>
+            <button class="btn btn-num h-10 rounded-md text-[12px] font-bold" onclick="handleMock('Ans')">Ans</button>
+            <button class="btn btn-equals h-10 rounded-md text-2xl font-bold" onclick="calculate()">=</button>
+
+        </div>
+    </div>
+
+    <!-- Script for Logic -->
+    <script>
+        let currentExpression = '';
+        let isCalculated = false;
+        let isShifted = false;
+
+        const mainDisplay = document.getElementById('mainDisplay');
+        const expressionDisplay = document.getElementById('expressionDisplay');
+        const shiftIndicator = document.getElementById('shiftIndicator');
+
+        if (window.self !== window.top) {
+            const backLink = document.getElementById('back-link');
+            if (backLink) backLink.style.display = 'none';
+        }
+
+        // Toggle SHIFT state
+        function toggleShift() {
+            isShifted = !isShifted;
+            shiftIndicator.style.visibility = isShifted ? 'visible' : 'hidden';
+            document.getElementById('btn-sin').innerText = isShifted ? 'sin⁻¹' : 'sin';
+            document.getElementById('btn-cos').innerText = isShifted ? 'cos⁻¹' : 'cos';
+            document.getElementById('btn-tan').innerText = isShifted ? 'tan⁻¹' : 'tan';
+        }
+
+        // Handle Trig buttons
+        function handleTrig(type) {
+            if (isShifted) {
+                appendInput('a' + type + '(');
+                toggleShift(); // Turn off shift after use
+            } else {
+                appendInput(type + '(');
+            }
+        }
+
+        // Update the screen display
+        function updateDisplay() {
+            if (currentExpression === '') {
+                mainDisplay.innerText = '0';
+            } else {
+                mainDisplay.innerText = currentExpression;
+            }
+        }
+
+        // Add character to the input
+        function appendInput(val) {
+            // If user types a number right after a calculation, clear screen first
+            if (isCalculated) {
+                if (/[0-9]/.test(val) || val.includes('(')) {
+                    currentExpression = '';
+                }
+                isCalculated = false;
+                expressionDisplay.innerText = '';
+            }
+
+            // Simple validation to prevent multiple decimals in one number
+            if (val === '.') {
+                const parts = currentExpression.split(/[\+\-\×\÷\(\)]/);
+                const lastPart = parts[parts.length - 1];
+                if (lastPart.includes('.')) return; 
+            }
+
+            currentExpression += val;
+            updateDisplay();
+        }
+
+        // Delete last character (DEL)
+        function deleteLast() {
+            if (isCalculated) {
+                expressionDisplay.innerText = '';
+                isCalculated = false;
+            }
+            if (currentExpression.length > 0) {
+                // If it ends with "asin(", "acos(", "atan(", remove the whole thing
+                if (currentExpression.endsWith('asin(') || currentExpression.endsWith('acos(') || currentExpression.endsWith('atan(')) {
+                    currentExpression = currentExpression.slice(0, -5);
+                } 
+                // If it ends with "sin(", "cos(", "tan(", remove the whole thing
+                else if (currentExpression.endsWith('sin(') || currentExpression.endsWith('cos(') || currentExpression.endsWith('tan(')) {
+                    currentExpression = currentExpression.slice(0, -4);
+                } else {
+                    currentExpression = currentExpression.slice(0, -1);
+                }
+            }
+            updateDisplay();
+        }
+
+        // Clear all (AC)
+        function clearAll() {
+            currentExpression = '';
+            expressionDisplay.innerText = '';
+            isCalculated = false;
+            updateDisplay();
+        }
+
+        // Handle buttons that are not implemented (for realistic look)
+        function handleMock(btnName) {
+            expressionDisplay.innerText = "Not Implemented";
+            setTimeout(() => {
+                if(expressionDisplay.innerText === "Not Implemented") {
+                    expressionDisplay.innerText = isCalculated ? currentExpression : '';
+                }
+            }, 1500);
+        }
+
+        // Math Wrapper Functions for Trig (Accepts Degrees)
+        const mathContext = {
+            sin: (deg) => {
+                const rad = deg * (Math.PI / 180);
+                // Handle floating point imprecision for sin(180) etc.
+                const res = Math.sin(rad);
+                return Math.abs(res) < 1e-10 ? 0 : res;
+            },
+            cos: (deg) => {
+                const rad = deg * (Math.PI / 180);
+                const res = Math.cos(rad);
+                return Math.abs(res) < 1e-10 ? 0 : res;
+            },
+            tan: (deg) => {
+                // Handle undefined cases like tan(90)
+                if (deg % 180 === 90 || deg % 180 === -90) return NaN;
+                const rad = deg * (Math.PI / 180);
+                const res = Math.tan(rad);
+                return Math.abs(res) < 1e-10 ? 0 : res;
+            },
+            asin: (val) => {
+                const res = Math.asin(val) * (180 / Math.PI);
+                return res;
+            },
+            acos: (val) => {
+                const res = Math.acos(val) * (180 / Math.PI);
+                return res;
+            },
+            atan: (val) => {
+                const res = Math.atan(val) * (180 / Math.PI);
+                return res;
+            }
+        };
+
+        // Calculate the result
+        function calculate() {
+            if (currentExpression.trim() === '') return;
+
+            // Save the visual expression for history
+            const visualExpression = currentExpression;
+
+            try {
+                // Prepare string for evaluation
+                let evalString = currentExpression
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/');
+
+                // Auto-balance parentheses if user forgot to close them
+                const openParen = (evalString.match(/\(/g) || []).length;
+                const closeParen = (evalString.match(/\)/g) || []).length;
+                for (let i = 0; i < openParen - closeParen; i++) {
+                    evalString += ')';
+                }
+
+                // Replace trig functions safely to avoid substring overlap (e.g. 'sin' inside 'asin')
+                evalString = evalString
+                    .replace(/asin\(/g, 'FN_ASIN(')
+                    .replace(/acos\(/g, 'FN_ACOS(')
+                    .replace(/atan\(/g, 'FN_ATAN(')
+                    .replace(/sin\(/g, 'FN_SIN(')
+                    .replace(/cos\(/g, 'FN_COS(')
+                    .replace(/tan\(/g, 'FN_TAN(');
+
+                evalString = evalString
+                    .replace(/FN_ASIN/g, 'mathContext.asin')
+                    .replace(/FN_ACOS/g, 'mathContext.acos')
+                    .replace(/FN_ATAN/g, 'mathContext.atan')
+                    .replace(/FN_SIN/g, 'mathContext.sin')
+                    .replace(/FN_COS/g, 'mathContext.cos')
+                    .replace(/FN_TAN/g, 'mathContext.tan');
+
+                // Use a safe Function constructor approach (safer than raw eval)
+                const result = new Function('mathContext', `return ${evalString}`)(mathContext);
+
+                // Handle errors like dividing by zero or invalid math (NaN)
+                if (!isFinite(result) || isNaN(result)) {
+                    throw new Error("Math Error");
+                }
+
+                // Format the result to avoid long floating point numbers
+                let finalResult = parseFloat(result.toPrecision(12)).toString();
+
+                expressionDisplay.innerText = visualExpression + ' =';
+                currentExpression = finalResult;
+                mainDisplay.innerText = currentExpression;
+                isCalculated = true;
+
+            } catch (error) {
+                expressionDisplay.innerText = visualExpression;
+                mainDisplay.innerText = 'Syntax Error';
+                currentExpression = '';
+                isCalculated = true;
+            }
+        }
+    </script>
+</body>
+</html>
